@@ -6,7 +6,14 @@ import Model from "../../src/classes/Model";
 describe("classes/Model", () => {
   describe("validation", () => {
     it("should return a instance of Model", () => {
-      const model = new Model();
+      const driver = {};
+      const config = {};
+
+      // @ts-ignore
+      const model = new Model({
+        driver,
+        config,
+      });
 
       expect(model).to.be.a.instanceof(Model);
     });

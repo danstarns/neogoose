@@ -11,7 +11,10 @@ describe("methods/disconnect", () => {
     });
 
     it("should return a function when passed runtime", () => {
-      const runtime: Runtime = {};
+      const runtime: Runtime = {
+        connections: [],
+        models: [],
+      };
 
       const _disconnect = disconnect(runtime);
 

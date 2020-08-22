@@ -11,8 +11,10 @@ describe("methods/createConnection", () => {
     });
 
     it("should return a function when passed runtime", () => {
-      const runtime: Runtime = {};
-
+      const runtime: Runtime = {
+        connections: [],
+        models: [],
+      };
       const _createConnection = createConnection(runtime);
 
       expect(_createConnection).to.be.a("function");
