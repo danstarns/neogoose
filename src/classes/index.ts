@@ -1,4 +1,4 @@
-import Model from "./Model.ts";
-import Connection from "./Connection.ts";
+import Model from "./Model";
+import Connection from "./Connection";
 
 export { Model, Connection };
