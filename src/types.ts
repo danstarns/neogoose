@@ -1,8 +1,6 @@
-export type Runtime = {
-  models?: Model[];
-};
+import { Connection, Model } from "./classes";
 
-export type Model = {
-  typeDefs: string;
-  name: string;
+export type Runtime = {
+  models: Model[];
+  connections: Connection[];
 };

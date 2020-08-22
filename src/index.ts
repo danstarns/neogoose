@@ -7,7 +7,10 @@ import {
   session,
 } from "./methods";
 
-const runtime: Runtime = {};
+const runtime: Runtime = {
+  models: [],
+  connections: [],
+};
 
 export = {
   model: model(runtime),
