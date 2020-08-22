@@ -1,0 +1,25 @@
+{
+  "name": "neogoose",
+  "version": "1.0.0",
+  "description": "Node.js Neo4j OGM inspired by Mongoose & GraphQL",
+  "main": "./dist/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/danstarns/neogoose.git"
+  },
+  "keywords": [
+    "neo4j",
+    "ogm",
+    "ogm-neo4j",
+    "mongoose"
+  ],
+  "author": "danielstarns@hotmail.com",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/danstarns/neogoose/issues"
+  },
+  "homepage": "https://github.com/danstarns/neogoose#readme"
+}
