@@ -15,4 +15,8 @@ describe("index", () => {
   it("should export createConnection", () => {
     expect(API.createConnection).to.be.a("function");
   });
+
+  it("should export disconnect", () => {
+    expect(API.disconnect).to.be.a("function");
+  });
 });
