@@ -1,8 +1,19 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import { expect } from "chai";
 import { describe } from "mocha";
-import createConnection from "../../src/methods/create-connection";
 import { Runtime } from "../../src/types";
+import proxyquire from "proxyquire";
+import { Connection } from "../../src/classes";
+
+const createConnection = proxyquire("../../src/methods/create-connection.ts", {
+  "neo4j-driver": {
+    driver: () => ({
+      verifyConnectivity: () => {
+        //
+      },
+    }),
+  },
+});
 
 describe("methods/createConnection", () => {
   describe("validation", () => {
@@ -18,6 +29,23 @@ describe("methods/createConnection", () => {
       const _createConnection = createConnection(runtime);
 
       expect(_createConnection).to.be.a("function");
+    });
+  });
+
+  describe("functionality", () => {
+    it("should connect and return a instance", async () => {
+      const runtime: Runtime = {
+        models: [],
+        connections: [],
+      };
+
+      const _createConnection = createConnection(runtime);
+
+      const connection = await _createConnection("neo4j://localhost");
+
+      expect(connection).to.be.a.instanceof(Connection);
+
+      expect(runtime.connections[0]).to.equal(connection);
     });
   });
 });

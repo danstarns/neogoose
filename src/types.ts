@@ -5,5 +5,5 @@ export type Runtime = {
   // The main connection
   connection?: Connection;
   // Connections created with createConnection
-  connections: [];
+  connections: Connection[];
 };
