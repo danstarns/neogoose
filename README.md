@@ -51,24 +51,36 @@ const User = neogoose.model(
 ```
 
 ### Creating Nodes
+1. `create`
+2. `createMany`
+
 ```js
 const user = await User.create({
     id: uuid(),
     name: "Dan",
     email: "email@email.com"
 });
+
+const users = await User.createMany([ ... ])
 ```
 
 ### Validate Input
-> Built in support for [graphql-constraint-directive](https://github.com/confuser/graphql-constraint-directive)
+> Built in support for [graphql-constraint-directive](https://github.com/confuser/graphql-constraint-directive) & homemade `@Validation` directive.
 
 ```js
 const User = neogoose.model(
     `
-        type User {
+        input UserValidation {
+            id: ID! @constraint(minLength: 5, format: "uid")
+            name: String! @constraint(minLength: 5)
+            email: String! @constraint(minLength: 5, format: "email")
+        }
+
+
+        type User @Validation(input: UserValidation) {
             id: ID!
             name: String!
-            email: String! @constraint(minLength: 5, format: "email")
+            email: String!
         }
     `
 );
@@ -76,15 +88,12 @@ const User = neogoose.model(
 
 ### Find Nodes 
 1. `find`
-2. `findById`
 3. `findOne`
 
 ```js
 const users = await User.find({
     name: "Dan",
 });
-
-const user = await User.findById(1); // Internal ID
 
 const dan = await User.findOne({
     name: "Dan",
@@ -128,4 +137,40 @@ const user = await User.create({
      }
     ]
 });
+```
+
+### Update Nodes 
+1. `updateOne`
+2. `updateMany`
+
+```js
+const users = await User.updateOne(
+    {
+        name: "Dan",
+    },
+    {
+        name: "naD"
+    }
+);
+
+const users = await User.updateMany([ ... ]);
+```
+
+### Delete Nodes 
+1. `deleteOne`
+2. `deleteMany`
+
+```js
+const users = await User.deleteOne(
+    {
+        name: "Dan",
+    }
+);
+
+const users = await User.deleteMany([ ... ]);
+```
+
+### Disconnecting
+```js
+await neogoose.disconnect();
 ```
