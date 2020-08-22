@@ -7,4 +7,8 @@ describe("index", () => {
   it("should export model", () => {
     expect(API.model).to.be.a("function");
   });
+
+  it("should export connect", () => {
+    expect(API.connect).to.be.a("function");
+  });
 });
