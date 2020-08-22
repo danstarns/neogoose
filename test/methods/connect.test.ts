@@ -23,8 +23,8 @@ describe("methods/connect", () => {
 
     it("should return a function when passed runtime", () => {
       const runtime: Runtime = {
-        connections: [],
         models: [],
+        connections: [],
       };
 
       const _connect = connect(runtime);
@@ -36,8 +36,8 @@ describe("methods/connect", () => {
   describe("functionality", () => {
     it("should connect and return a instance", async () => {
       const runtime: Runtime = {
-        connections: [],
         models: [],
+        connections: [],
       };
 
       const _connect = connect(runtime);
@@ -46,7 +46,7 @@ describe("methods/connect", () => {
 
       expect(connection).to.be.a.instanceof(Connection);
 
-      expect(runtime.connections[0]).to.equal(connection);
+      expect(runtime.connection).to.equal(connection);
     });
   });
 });

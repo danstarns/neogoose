@@ -2,5 +2,8 @@ import { Connection, Model } from "./classes";
 
 export type Runtime = {
   models: Model[];
-  connections: Connection[];
+  // The main connection
+  connection?: Connection;
+  // Connections created with createConnection
+  connections: [];
 };

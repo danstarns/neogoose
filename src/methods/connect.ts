@@ -17,7 +17,7 @@ function connect(runtime: Runtime) {
       config,
     });
 
-    runtime.connections.push(connection);
+    runtime.connection = connection;
 
     return connection;
   };
