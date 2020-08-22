@@ -124,7 +124,7 @@ const User = neogoose.model(
 
 
         type User {
-            posts: [Post] @Relationship(labels: ["CREATED"], properties: UserPostCreatedProperties!)
+            posts: [Post] @Relationship(properties: UserPostCreatedProperties!)
         }
     `
 );
@@ -141,11 +141,14 @@ const user = await User.create({
     posts: [
      { 
         relation: { 
-            date: new Date()
+            properties: {
+                date: new Date().toISOString()
+            },
+            labels: ["CREATED"]
         }, 
         node: { 
             title: "COOL 🍻"
-        } 
+        }
      }
     ]
 });
