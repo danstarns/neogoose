@@ -11,4 +11,8 @@ describe("index", () => {
   it("should export connect", () => {
     expect(API.connect).to.be.a("function");
   });
+
+  it("should export createConnection", () => {
+    expect(API.createConnection).to.be.a("function");
+  });
 });
