@@ -1,13 +1,28 @@
 import { Runtime } from "../types";
-import { Session } from "neo4j-driver";
+import { Session, SessionMode } from "neo4j-driver";
 
 function session(runtime: Runtime) {
-  return (): null | Session => {
+  return ({
+    defaultAccessMode,
+    bookmarks,
+    database,
+    fetchSize,
+  }: {
+    defaultAccessMode?: SessionMode;
+    bookmarks?: string | string[];
+    fetchSize?: number;
+    database?: string;
+  } = {}): null | Session => {
     if (!runtime.connection) {
       return null;
     }
 
-    return runtime.connection.driver.session();
+    return runtime.connection.driver.session({
+      defaultAccessMode,
+      bookmarks,
+      database,
+      fetchSize,
+    });
   };
 }
 
