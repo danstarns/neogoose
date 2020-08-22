@@ -24,6 +24,9 @@
     "url": "https://github.com/danstarns/neogoose/issues"
   },
   "homepage": "https://github.com/danstarns/neogoose#readme",
+  "peerDependencies": {
+    "neo4j-driver": "^4.1.1"
+  },
   "devDependencies": {
     "@types/chai": "^4.2.12",
     "@types/mocha": "^8.0.3",
