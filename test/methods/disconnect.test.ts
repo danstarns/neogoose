@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-empty-function */
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import { expect } from "chai";
 import { describe } from "mocha";
@@ -19,6 +20,23 @@ describe("methods/disconnect", () => {
       const _disconnect = disconnect(runtime);
 
       expect(_disconnect).to.be.a("function");
+    });
+  });
+
+  describe("functionality", () => {
+    it("should call close and null the connection", async () => {
+      const runtime: Runtime = {
+        models: [],
+        connections: [],
+        // @ts-ignore
+        connection: { driver: { close: () => {} } },
+      };
+
+      const _disconnect = disconnect(runtime);
+
+      await _disconnect();
+
+      expect(runtime.connection).to.equal(null);
     });
   });
 });

@@ -1,8 +1,12 @@
 import { Runtime } from "../types";
 
 function disconnect(runtime: Runtime) {
-  return () => {
-    // TODO
+  return async (): Promise<void> => {
+    if (runtime.connection) {
+      await runtime.connection.driver.close();
+
+      runtime.connection = null;
+    }
   };
 }
 
