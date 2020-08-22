@@ -19,4 +19,8 @@ describe("index", () => {
   it("should export disconnect", () => {
     expect(API.disconnect).to.be.a("function");
   });
+
+  it("should export session", () => {
+    expect(API.session).to.be.a("function");
+  });
 });

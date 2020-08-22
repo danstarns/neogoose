@@ -1,5 +1,11 @@
 import { Runtime } from "./types";
-import { model, connect, createConnection, disconnect } from "./methods";
+import {
+  model,
+  connect,
+  createConnection,
+  disconnect,
+  session,
+} from "./methods";
 
 const runtime: Runtime = {};
 
@@ -8,4 +14,5 @@ export = {
   connect: connect(runtime),
   createConnection: createConnection(runtime),
   disconnect: disconnect(runtime),
+  session: session(runtime),
 };
