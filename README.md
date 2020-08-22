@@ -50,6 +50,16 @@ const User = neogoose.model(
 );
 ```
 
+⚠ Models are not designed to support querying relationships. Use session for this. This library is designed to place a `CRUD` api over neo4j nodes, with the exemption of [creating relationships](#creating-relationships).
+
+### Creating a session
+```js
+await neogoose.connect("neo4j://localhost");
+
+// https://neo4j.com/developer/javascript/
+const session = await neogoose.session();
+```
+
 ### Creating Nodes
 1. `create`
 2. `createMany`
@@ -101,7 +111,7 @@ const dan = await User.findOne({
 ```
 
 ### Creating Relationships
-> Usage of in-built `@relationship()` directive
+> Usage of in-built `@Relationship()` directive
 
 ```js
 const User = neogoose.model(
@@ -112,7 +122,7 @@ const User = neogoose.model(
 
 
         type User {
-            posts: [Post] @relation(label: "CREATED", properties: UserPostCreatedProperties!)
+            posts: [Post] @Relationship(labels: ["CREATED"], properties: UserPostCreatedProperties!)
         }
     `
 );
