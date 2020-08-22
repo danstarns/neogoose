@@ -21,4 +21,34 @@ describe("methods/session", () => {
       expect(_session).to.be.a("function");
     });
   });
+
+  describe("functionality", () => {
+    it("should return null if no connection", async () => {
+      const runtime: Runtime = {
+        models: [],
+        connections: [],
+      };
+
+      const _session = session(runtime);
+
+      const sesh = await _session();
+
+      expect(sesh).to.equal(null);
+    });
+
+    it("should return the call of driver.session();", async () => {
+      const runtime: Runtime = {
+        models: [],
+        connections: [],
+        // @ts-ignore
+        connection: { driver: { session: () => ({ test: "test" }) } },
+      };
+
+      const _session = session(runtime);
+
+      const sesh = await _session();
+
+      expect(sesh).to.deep.equal({ test: "test" });
+    });
+  });
 });
