@@ -31,7 +31,11 @@ function model(runtime: Runtime) {
       throw new Error("typeDefs requires 'type User'/ObjectTypeDefinition");
     }
 
-    const model = new Model({ name, document });
+    const model = new Model({
+      name,
+      document,
+      ...(options.session ? { sessionOptions: options.session } : {}),
+    });
 
     runtime.models.push(model);
 
