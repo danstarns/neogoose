@@ -17,7 +17,19 @@ function model(runtime: Runtime) {
       throw new TypeError("options.typeDefs required");
     }
 
+    if (runtime.models.find((x) => x.name === name)) {
+      throw new Error(`Model name: '${name}' conflict`);
+    }
+
     const document = parseTypeDefs(options.typeDefs);
+
+    const nameNode = document.definitions.find(
+      (x) => x.kind === "ObjectTypeDefinition" && x.name.value === name
+    );
+
+    if (!nameNode) {
+      throw new Error("typeDefs requires 'type User'/ObjectTypeDefinition");
+    }
 
     const model = new Model({ name, document });
 

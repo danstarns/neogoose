@@ -59,6 +59,60 @@ describe("methods/model", () => {
       }
     });
 
+    it("should throw model name conflict", () => {
+      const runtime: Runtime = {
+        // @ts-ignore
+        models: [{ name: "User" }],
+        connections: [],
+      };
+
+      try {
+        model(runtime)("User", {
+          typeDefs: `
+            input UserValidation {
+              name: String!
+            }
+  
+  
+            type User {
+              name: String!
+            }
+          `,
+        });
+
+        throw new Error("I should not throw");
+      } catch (error) {
+        expect(error.message).to.equal(`Model name: 'User' conflict`);
+      }
+    });
+
+    it("should throw typeDefs requires type User", () => {
+      const runtime: Runtime = {
+        models: [],
+        connections: [],
+      };
+
+      try {
+        model(runtime)("User", {
+          typeDefs: `
+            input UserValidation {
+              name: String!
+            }
+  
+            type NotUser {
+              name: String!
+            }
+          `,
+        });
+
+        throw new Error("I should not throw");
+      } catch (error) {
+        expect(error.message).to.equal(
+          `typeDefs requires 'type User'/ObjectTypeDefinition`
+        );
+      }
+    });
+
     it("should return an instance of Model", () => {
       const runtime: Runtime = {
         connections: [],
