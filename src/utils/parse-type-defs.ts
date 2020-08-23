@@ -1,7 +1,6 @@
 import fs from "fs";
-import { DocumentNode, parse, print } from "graphql";
-
-type TypeDefsUnion = string | DocumentNode;
+import { TypeDefsUnion } from "../types";
+import { parse, print, DocumentNode } from "graphql";
 
 function parseTypeDefs(typeDefs: TypeDefsUnion): DocumentNode {
   if (typeof typeDefs === "string") {

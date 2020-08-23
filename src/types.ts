@@ -1,5 +1,8 @@
 import { Connection, Model } from "./classes";
 import { DocumentNode } from "graphql";
+import { SessionMode } from "neo4j-driver";
+
+export type TypeDefsUnion = string | DocumentNode;
 
 export type Runtime = {
   models: Model[];
@@ -10,5 +13,12 @@ export type Runtime = {
 };
 
 export interface ModelOptions {
-  typeDefs: string | DocumentNode;
+  typeDefs: TypeDefsUnion;
+}
+
+export interface SessionOptions {
+  defaultAccessMode?: SessionMode;
+  bookmarks?: string | string[];
+  fetchSize?: number;
+  database?: string;
 }
