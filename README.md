@@ -42,13 +42,16 @@ const connection2 = await neogoose.createConnection("neo4j://2.2.2.2");
 
 ```js
 const User = neogoose.model(
-    `
-        type User {
-            id: ID!
-            name: String!
-            email: String!
-        }
-    `
+    "User",
+    {
+        typeDefs: `
+            type User {
+                id: ID!
+                name: String!
+                email: String!
+            }
+        `
+    }
 );
 ```
 
@@ -81,20 +84,23 @@ const users = await User.createMany([ ... ])
 
 ```js
 const User = neogoose.model(
-    `
-        input UserValidation {
-            id: ID! @constraint(minLength: 5, format: "uid")
-            name: String! @constraint(minLength: 5)
-            email: String! @constraint(minLength: 5, format: "email")
-        }
+    "User",
+    {
+        typeDefs: `
+            input UserValidation {
+                id: ID! @constraint(minLength: 5, format: "uid")
+                name: String! @constraint(minLength: 5)
+                email: String! @constraint(minLength: 5, format: "email")
+            }
 
 
-        type User @Validation(input: UserValidation) {
-            id: ID!
-            name: String!
-            email: String!
-        }
-    `
+            type User @Validation(input: UserValidation) {
+                id: ID!
+                name: String!
+                email: String!
+            }
+        `
+    }
 );
 ```
 
@@ -117,24 +123,30 @@ const dan = await User.findOne({
 
 ```js
 const User = neogoose.model(
-    `
-        type UserPostCreatedProperties {
-            date: String!
-        }
+    "User",
+    {
+        typeDefs: `
+            type UserPostCreatedProperties {
+                date: String!
+            }
 
 
-        type User {
-            posts: [Post] @Relationship(properties: UserPostCreatedProperties!)
-        }
-    `
+            type User {
+                posts: [Post] @Relationship(properties: UserPostCreatedProperties!)
+            }
+        `
+    }
 );
 
 const Post = neogoose.model(
-    `
-        type Post {
-            title: String!
-        }
-    `
+    "Post", 
+    {
+        typeDefs: `
+            type Post {
+                title: String!
+            }
+        `
+    }
 );
 
 const user = await User.create({
