@@ -1,6 +1,6 @@
 import { Driver, Config } from "neo4j-driver";
 
-interface ConnectionOptions {
+interface ConnectionInput {
   driver: Driver;
   config: Config;
 }
@@ -9,9 +9,9 @@ class Connection {
   public driver: Driver;
   public config: Config;
 
-  constructor(options: ConnectionOptions) {
-    this.driver = options.driver;
-    this.config = options.config;
+  constructor(input: ConnectionInput) {
+    this.driver = input.driver;
+    this.config = input.config;
   }
 }
 
