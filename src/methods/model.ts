@@ -4,13 +4,13 @@ import { ModelOptions } from "../types";
 import { Model } from "../classes";
 
 function model(runtime: Runtime) {
-  return (name: string, options: ModelOptions): Model => {
+  return (name: string, options?: ModelOptions): Model => {
     if (!name) {
       throw new TypeError("name required");
     }
 
     if (!options) {
-      throw new TypeError("options required");
+      return runtime.models.find((x) => x.name === name);
     }
 
     if (!options.typeDefs) {

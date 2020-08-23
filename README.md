@@ -65,6 +65,11 @@ await neogoose.connect("neo4j://localhost");
 const session = await neogoose.session();
 ```
 
+### Retrieving a model
+```js
+const user = neogoose.model("User");
+```
+
 ### Creating Nodes
 1. `create`
 2. `createMany`

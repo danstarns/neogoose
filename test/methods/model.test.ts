@@ -27,22 +27,6 @@ describe("methods/model", () => {
       }
     });
 
-    it("should throw options required", () => {
-      const runtime: Runtime = {
-        models: [],
-        connections: [],
-      };
-
-      try {
-        // @ts-ignore
-        model(runtime)("User");
-
-        throw new Error("I should not throw");
-      } catch (error) {
-        expect(error.message).to.equal("options required");
-      }
-    });
-
     it("should throw options.typeDefs required", () => {
       const runtime: Runtime = {
         models: [],
@@ -133,6 +117,34 @@ describe("methods/model", () => {
       });
 
       expect(_model).to.be.a.instanceof(Model);
+    });
+  });
+
+  describe("functionality", () => {
+    it("should return an instance of Model if only string is passed", () => {
+      const runtime: Runtime = {
+        connections: [],
+        models: [],
+      };
+
+      //@ts-ignore
+      const _model = model(runtime);
+
+      const user = _model("User", {
+        typeDefs: `
+        input UserValidation {
+          name: String!
+        }
+
+
+        type User {
+          name: String!
+        }
+      `,
+      });
+
+      expect(user).to.equal(_model("User"));
+      expect(_model("User")).to.equal(_model("User"));
     });
   });
 });
