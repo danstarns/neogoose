@@ -10,7 +10,7 @@ First install [Node.js](https://nodejs.org/en/) and [Neo4j](https://neo4j.com/).
 $ npm install neogoose
 ```
 
-> ⚠ `neo4j-driver` and `graphql` are **peerDependencies** you may need to install them too. 
+⚠ `neo4j-driver` and `graphql` are **peerDependencies** you may need to install them too. 
 
 ```
 $ npm install neo4j-driver graphql
@@ -222,7 +222,7 @@ const User = neogoose.model(
 
 
             type User {
-                posts: [Post] @Relationship(properties: UserPostCreatedProperties!) # -> OUT direction
+                posts: [Post] @Relationship(properties: UserPostCreatedProperties) # -> OUT direction
             }
         `
     }
