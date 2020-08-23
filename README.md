@@ -10,6 +10,12 @@ First install [Node.js](https://nodejs.org/en/) and [Neo4j](https://neo4j.com/).
 $ npm install neogoose
 ```
 
+> ⚠ `neo4j-driver` and `graphql` are **peerDependencies** you may need to install them too. 
+
+```
+$ npm install neo4j-driver graphql
+```
+
 ## Importing
 ```js
 // Using require
@@ -23,6 +29,7 @@ import neogoose from "neogoose";
 1. [neode](https://github.com/adam-cowley/neode)
 2. [mongoose](https://github.com/Automattic/mongoose)
 3. [neo4j-graphql-js](https://github.com/neo4j-graphql/neo4j-graphql-js)
+4. [graphql](https://graphql.org/)
 
 # Overview
 ### Connecting to Neo4j
@@ -35,6 +42,11 @@ await neogoose.connect("neo4j://localhost");
 ```js
 const connection1 = await neogoose.createConnection("neo4j://1.1.1.1");
 const connection2 = await neogoose.createConnection("neo4j://2.2.2.2");
+```
+
+### Disconnecting
+```js
+await neogoose.disconnect();
 ```
 
 ### Defining a Model
@@ -84,31 +96,6 @@ const user = await User.create({
 const users = await User.createMany([ ... ])
 ```
 
-### Validate Input
-> Built in support for [graphql-constraint-directive](https://github.com/confuser/graphql-constraint-directive) & homemade `@Validation` directive.
-
-```js
-const User = neogoose.model(
-    "User",
-    {
-        typeDefs: `
-            input UserValidation {
-                id: ID! @constraint(minLength: 5, format: "uid")
-                name: String! @constraint(minLength: 5)
-                email: String! @constraint(minLength: 5, format: "email")
-            }
-
-
-            type User @Validation(input: UserValidation) {
-                id: ID!
-                name: String!
-                email: String!
-            }
-        `
-    }
-);
-```
-
 ### Find Nodes 
 1. `find`
 3. `findOne`
@@ -120,54 +107,6 @@ const users = await User.find({
 
 const dan = await User.findOne({
     name: "Dan",
-});
-```
-
-### Creating Relationships
-> Usage of in-built `@Relationship()` directive
-
-```js
-const User = neogoose.model(
-    "User",
-    {
-        typeDefs: `
-            type UserPostCreatedProperties {
-                date: String!
-            }
-
-
-            type User {
-                posts: [Post] @Relationship(properties: UserPostCreatedProperties!)
-            }
-        `
-    }
-);
-
-const Post = neogoose.model(
-    "Post", 
-    {
-        typeDefs: `
-            type Post {
-                title: String!
-            }
-        `
-    }
-);
-
-const user = await User.create({
-    posts: [
-     { 
-        relation: { 
-            properties: {
-                date: new Date().toISOString()
-            },
-            labels: ["CREATED"]
-        }, 
-        node: { 
-            title: "COOL 🍻"
-        }
-     }
-    ]
 });
 ```
 
@@ -202,7 +141,152 @@ const users = await User.deleteOne(
 const users = await User.deleteMany([ ... ]);
 ```
 
-### Disconnecting
+
+### Validate Input
+> Built in support for [graphql-constraint-directive](https://github.com/confuser/graphql-constraint-directive) & homemade `@Validation` directive.
+
 ```js
-await neogoose.disconnect();
+const User = neogoose.model(
+    "User",
+    {
+        typeDefs: `
+            input UserCreate {
+                id: ID! @constraint(minLength: 5, format: "uid")
+                name: String! @constraint(minLength: 5)
+                email: String! @constraint(minLength: 5, format: "email")
+            }
+
+            input UserUpdate {
+                name: String! @constraint(minLength: 5)
+                email: String! @constraint(minLength: 5, format: "email")
+            }
+
+
+            type User @Validation(ON_CREATE: UserCreate, ON_MATCH: UserUpdate) {
+                id: ID!
+                name: String!
+                email: String!
+            }
+        `
+    }
+);
 ```
+
+#### Auto Input
+⚠ If you don't specify `@Validation` an auto generated `input` will be made based on the provided `type`. **Nested `input` types are not supported!**
+
+**Before**
+```js
+{
+    typeDefs: `
+        type User  {
+            id: ID!
+            name: String!
+            email: String!
+        }
+    `
+}
+```
+
+**After**
+> The below is representing the Models auto generated schema if you don't provide `@Validation` directive.
+
+```js
+{
+    typeDefs: `
+        input AUTO_GENERATED { # Default if you don't specify ON_CREATE or ON_MATCH
+            id: ID!
+            name: String!
+            email: String!  
+        }
+
+        type User @Validation(ON_CREATE: AUTO_GENERATED, ON_MATCH: AUTO_GENERATED) {
+            id: ID!
+            name: String!
+            email: String!
+        }
+    `
+}
+```
+### Creating Relationships
+> Usage of in-built `@Relationship()` directive
+
+```js
+const User = neogoose.model(
+    "User",
+    {
+        typeDefs: `
+            type UserPostCreatedProperties {
+                date: String!
+            }
+
+
+            type User {
+                posts: [Post] @Relationship(properties: UserPostCreatedProperties!) # -> OUT direction
+            }
+        `
+    }
+);
+
+const Post = neogoose.model(
+    "Post", 
+    {
+        typeDefs: `
+            type Post {
+                title: String!
+            }
+        `
+    }
+);
+
+const user = await User.create({
+    posts: [
+     { 
+        relation: { 
+            properties: {
+                date: new Date().toISOString()
+            },
+            labels: ["CREATED"]
+        }, 
+        node: { 
+            title: "COOL 🍻"
+        }
+     }
+    ]
+});
+```
+
+#### Validate Relationships
+> Use `ON_CREATE` and `ON_MATCH`, the rules for [Auto Input](#auto-input) applies. 
+
+```js
+const User = neogoose.model(
+    "User",
+    {
+        typeDefs: `
+            type UserPostRelation {
+                date: String!
+            }
+
+            input UserPostRelationInput {
+                date: String!
+            }
+
+            input UserInput { # don't specify posts validation here
+                name: String!
+            }
+
+            type User @Validation(ON_CREATE: UserInput, ON_MATCH: UserInput) {
+                name: String!
+                posts: [Post] @Relationship(
+                    properties: UserPostRelation,
+                    ON_CREATE: UserPostRelationInput,
+                    ON_MATCH: UserPostRelationInput
+                ) # -> OUT direction
+            }
+        `
+    }
+);
+```
+
+ ⚠ Notice you would not specify `posts` as a `Field` on `input` `UserInput`
