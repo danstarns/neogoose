@@ -7,7 +7,7 @@ interface ModelInput {
   sessionOptions?: SessionOptions;
 }
 
-class Model {
+class Model<T = any> {
   public name: string;
   private document: DocumentNode;
   private sessionOptions?: SessionOptions;
@@ -16,6 +16,38 @@ class Model {
     this.name = input.name;
     this.document = input.document;
     this.sessionOptions = input.sessionOptions;
+  }
+
+  createOne(): void {
+    // TODO
+  }
+
+  createMany(): void {
+    // TODO
+  }
+
+  findOne(): void {
+    // TODO
+  }
+
+  findMany(): void {
+    // TODO
+  }
+
+  updateOne(): void {
+    // TODO
+  }
+
+  updateMany(): void {
+    // TODO
+  }
+
+  deleteOne(): void {
+    // TODO
+  }
+
+  deleteMany(): void {
+    // TODO
   }
 }
 

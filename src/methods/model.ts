@@ -3,7 +3,7 @@ import { parseTypeDefs } from "../utils";
 import { ModelOptions } from "../types";
 import { Model } from "../classes";
 
-function model(runtime: Runtime) {
+function model<T = any>(runtime: Runtime) {
   return (name: string, options?: ModelOptions): Model => {
     if (!name) {
       throw new TypeError("name required");
@@ -31,7 +31,7 @@ function model(runtime: Runtime) {
       throw new Error("typeDefs requires 'type User'/ObjectTypeDefinition");
     }
 
-    const model = new Model({
+    const model = new Model<T>({
       name,
       document,
       ...(options.session ? { sessionOptions: options.session } : {}),

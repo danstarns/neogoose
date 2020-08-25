@@ -14,5 +14,22 @@ describe("classes/Model", () => {
 
       expect(model).to.be.a.instanceof(Model);
     });
+
+    it("should have the correct methods", () => {
+      const model = new Model({
+        name: "User",
+        // @ts-ignore
+        document: {},
+      });
+
+      expect(model).to.have.property("createOne").to.be.a("function");
+      expect(model).to.have.property("createMany").to.be.a("function");
+      expect(model).to.have.property("findOne").to.be.a("function");
+      expect(model).to.have.property("findMany").to.be.a("function");
+      expect(model).to.have.property("updateOne").to.be.a("function");
+      expect(model).to.have.property("updateMany").to.be.a("function");
+      expect(model).to.have.property("deleteOne").to.be.a("function");
+      expect(model).to.have.property("deleteMany").to.be.a("function");
+    });
   });
 });
