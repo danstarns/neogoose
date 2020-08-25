@@ -97,11 +97,11 @@ const users = await User.createMany([ ... ])
 ```
 
 ### Find Nodes 
-1. `find`
+1. `findMany`
 3. `findOne`
 
 ```js
-const users = await User.find({
+const users = await User.findMany({
     name: "Dan",
 });
 
