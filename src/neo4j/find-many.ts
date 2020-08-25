@@ -1,0 +1,3 @@
+function findMany() {}
+
+export = findMany;

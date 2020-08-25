@@ -1,0 +1,3 @@
+function createOne() {}
+
+export = createOne;

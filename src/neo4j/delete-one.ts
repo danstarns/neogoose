@@ -1,0 +1,3 @@
+function deleteOne() {}
+
+export = deleteOne;

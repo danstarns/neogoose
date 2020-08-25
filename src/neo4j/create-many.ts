@@ -1,0 +1,3 @@
+function createMany() {}
+
+export = createMany;

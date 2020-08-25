@@ -1,0 +1,3 @@
+function deleteMany() {}
+
+export = deleteMany;
