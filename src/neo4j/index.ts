@@ -6,6 +6,7 @@ import updateOne from "./update-one";
 import updateMany from "./update-many";
 import deleteOne from "./delete-one";
 import deleteMany from "./delete-many";
+import connect from "./connect";
 
 export {
   createOne,
@@ -16,4 +17,5 @@ export {
   updateMany,
   deleteOne,
   deleteMany,
+  connect,
 };

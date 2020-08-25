@@ -6,12 +6,8 @@ import proxyquire from "proxyquire";
 import { Connection } from "../../src/classes";
 
 const createConnection = proxyquire("../../src/methods/create-connection.ts", {
-  "neo4j-driver": {
-    driver: () => ({
-      verifyConnectivity: () => {
-        //
-      },
-    }),
+  "../neo4j": {
+    connect: () => ({}),
   },
 });
 

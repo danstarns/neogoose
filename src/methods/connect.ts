@@ -1,6 +1,7 @@
 import { Runtime } from "../types";
-import { AuthToken, Config, driver as createDriver } from "neo4j-driver";
+import { AuthToken, Config } from "neo4j-driver";
 import { Connection } from "../classes";
+import * as neo4j from "../neo4j";
 
 function connect(runtime: Runtime) {
   return async (
@@ -8,9 +9,7 @@ function connect(runtime: Runtime) {
     authToken?: AuthToken,
     config?: Config
   ): Promise<Connection> => {
-    const driver = createDriver(url, authToken, config);
-
-    await driver.verifyConnectivity();
+    const driver = await neo4j.connect(url, authToken, config);
 
     const connection = new Connection({
       driver,
