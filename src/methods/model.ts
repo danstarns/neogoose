@@ -29,10 +29,13 @@ function model<T = any>(runtime: Runtime) {
     // @ts-ignore
     const input: ModelInput = {
       name,
-      ...(options.session ? { sessionOptions: options.session } : {}),
       // @ts-ignore
       inputs: {},
     };
+
+    if (options.sessionOptions) {
+      input.sessionOptions = options.sessionOptions;
+    }
 
     let document = parseTypeDefs(options.typeDefs);
 
