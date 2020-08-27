@@ -1,7 +1,12 @@
-import { Runtime } from "../types";
-import { parseTypeDefs } from "../utils";
-import { ModelOptions } from "../types";
-import { Model } from "../classes";
+import { Runtime, ModelOptions } from "../types";
+import { Model, ModelInput } from "../classes";
+import {
+  parseTypeDefs,
+  getNodeByName,
+  getValidationDirective,
+  getInputByName,
+  removeValidationDirective,
+} from "../graphql";
 
 function model<T = any>(runtime: Runtime) {
   return (name: string, options?: ModelOptions): Model => {
@@ -21,21 +26,81 @@ function model<T = any>(runtime: Runtime) {
       throw new Error(`Model name: '${name}' conflict`);
     }
 
-    const document = parseTypeDefs(options.typeDefs);
+    // @ts-ignore
+    const input: ModelInput = {
+      name,
+      ...(options.session ? { sessionOptions: options.session } : {}),
+      // @ts-ignore
+      inputs: {},
+    };
 
-    const nameNode = document.definitions.find(
-      (x) => x.kind === "ObjectTypeDefinition" && x.name.value === name
-    );
+    let document = parseTypeDefs(options.typeDefs);
 
-    if (!nameNode) {
+    ["Mutation", "Query", "Subscription"].forEach((kind) => {
+      const node = getNodeByName({ document, name: kind });
+
+      if (node) {
+        throw new Error(`typeDefs.${kind} not supported`);
+      }
+    });
+
+    const node = getNodeByName({ document, name });
+
+    if (!node) {
       throw new Error("typeDefs requires 'type User'/ObjectTypeDefinition");
     }
 
-    const model = new Model<T>({
-      name,
-      document,
-      ...(options.session ? { sessionOptions: options.session } : {}),
-    });
+    input.node = node;
+
+    const validationDirective = getValidationDirective(node);
+
+    if (validationDirective) {
+      const onCreateArg = validationDirective.arguments.find(
+        (x) => x.name.value === "ON_CREATE"
+      );
+
+      const onMatchArg = validationDirective.arguments.find(
+        (x) => x.name.value === "ON_MATCH"
+      );
+
+      if (!onCreateArg && !onMatchArg) {
+        throw new Error("@Validation ON_CREATE and or ON_MATCH required");
+      }
+
+      if (onCreateArg) {
+        const onCreateInput = getInputByName({
+          document,
+          // @ts-ignore
+          name: onCreateArg.value.value,
+        });
+
+        if (!onCreateInput) {
+          throw new Error(`input ${onCreateArg.name.value} not found`);
+        }
+
+        input.inputs.ON_CREATE = onCreateInput;
+      }
+
+      if (onMatchArg) {
+        const onMatchInput = getInputByName({
+          document,
+          // @ts-ignore
+          name: onMatchArg.value.value,
+        });
+
+        if (!onMatchInput) {
+          throw new Error(`input ${onMatchArg.name.value} not found`);
+        }
+
+        input.inputs.ON_MATCH = onMatchInput;
+      }
+    }
+
+    document = removeValidationDirective(document);
+
+    input.document = document;
+
+    const model = new Model<T>(input);
 
     runtime.models.push(model);
 
