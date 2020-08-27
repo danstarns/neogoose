@@ -12,6 +12,7 @@ describe("methods/disconnect", () => {
     });
 
     it("should return a function when passed runtime", () => {
+      // @ts-ignore
       const runtime: Runtime = {
         connections: [],
         models: [],
@@ -25,6 +26,7 @@ describe("methods/disconnect", () => {
 
   describe("functionality", () => {
     it("should call close and null the connection", async () => {
+      // @ts-ignore
       const runtime: Runtime = {
         models: [],
         connections: [],

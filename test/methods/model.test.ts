@@ -12,6 +12,7 @@ describe("methods/model", () => {
     });
 
     it("should throw name required", () => {
+      // @ts-ignore
       const runtime: Runtime = {
         models: [],
         connections: [],
@@ -28,6 +29,7 @@ describe("methods/model", () => {
     });
 
     it("should throw options.typeDefs required", () => {
+      // @ts-ignore
       const runtime: Runtime = {
         models: [],
         connections: [],
@@ -44,6 +46,7 @@ describe("methods/model", () => {
     });
 
     it("should throw model name conflict", () => {
+      // @ts-ignore
       const runtime: Runtime = {
         // @ts-ignore
         models: [{ name: "User" }],
@@ -71,6 +74,7 @@ describe("methods/model", () => {
     });
 
     it("should throw typeDefs requires type User", () => {
+      // @ts-ignore
       const runtime: Runtime = {
         models: [],
         connections: [],
@@ -98,6 +102,7 @@ describe("methods/model", () => {
     });
 
     it("should throw typedefs[Query|Mutation|Subscription] not supported", () => {
+      // @ts-ignore
       const runtime: Runtime = {
         models: [],
         connections: [],
@@ -125,6 +130,7 @@ describe("methods/model", () => {
     });
 
     it("should throw @Validation ON_CREATE and or ON_MATCH required", () => {
+      // @ts-ignore
       const runtime: Runtime = {
         models: [],
         connections: [],
@@ -148,6 +154,7 @@ describe("methods/model", () => {
     });
 
     it("should throw ON_MATCH not found", () => {
+      // @ts-ignore
       const runtime: Runtime = {
         models: [],
         connections: [],
@@ -169,6 +176,7 @@ describe("methods/model", () => {
     });
 
     it("should throw ON_CREATE not found", () => {
+      // @ts-ignore
       const runtime: Runtime = {
         models: [],
         connections: [],
@@ -190,6 +198,7 @@ describe("methods/model", () => {
     });
 
     it("should throw invalid connection", () => {
+      // @ts-ignore
       const runtime: Runtime = {
         models: [],
         connections: [],
@@ -213,6 +222,7 @@ describe("methods/model", () => {
     });
 
     it("should return an instance of Model", () => {
+      // @ts-ignore
       const runtime: Runtime = {
         connections: [],
         models: [],
@@ -237,6 +247,7 @@ describe("methods/model", () => {
 
   describe("functionality", () => {
     it("should return an instance of Model if only string is passed", () => {
+      // @ts-ignore
       const runtime: Runtime = {
         connections: [],
         models: [],
@@ -263,6 +274,7 @@ describe("methods/model", () => {
     });
 
     it("should parse and assign the correct graphql AST values", () => {
+      // @ts-ignore
       const runtime: Runtime = {
         connections: [],
         models: [],

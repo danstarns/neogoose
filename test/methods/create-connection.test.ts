@@ -18,6 +18,7 @@ describe("methods/createConnection", () => {
     });
 
     it("should return a function when passed runtime", () => {
+      // @ts-ignore
       const runtime: Runtime = {
         connections: [],
         models: [],
@@ -30,6 +31,7 @@ describe("methods/createConnection", () => {
 
   describe("functionality", () => {
     it("should connect and return a instance", async () => {
+      // @ts-ignore
       const runtime: Runtime = {
         models: [],
         connections: [],

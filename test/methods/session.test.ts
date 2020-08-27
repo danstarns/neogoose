@@ -11,6 +11,7 @@ describe("methods/session", () => {
     });
 
     it("should return a function when passed runtime", () => {
+      // @ts-ignore
       const runtime: Runtime = {
         connections: [],
         models: [],
@@ -24,6 +25,7 @@ describe("methods/session", () => {
 
   describe("functionality", () => {
     it("should return null if no connection", async () => {
+      // @ts-ignore
       const runtime: Runtime = {
         models: [],
         connections: [],
@@ -37,6 +39,7 @@ describe("methods/session", () => {
     });
 
     it("should return the call of driver.session();", async () => {
+      // @ts-ignore
       const runtime: Runtime = {
         models: [],
         connections: [],

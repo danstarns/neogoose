@@ -7,6 +7,8 @@ import {
   session,
 } from "./methods";
 
+// @ts-ignore
+// @ts-ignore
 const runtime: Runtime = {
   models: [],
   connections: [],
