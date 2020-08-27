@@ -6,7 +6,7 @@ import { parse, ObjectTypeDefinitionNode } from "graphql";
 
 describe("graphql/getValidationDirective", () => {
   describe("functionality", () => {
-    it("should return a node by its name", () => {
+    it("should return the validation directive", () => {
       const typeDefs = `
             type User @Validation {
                 name: string!
