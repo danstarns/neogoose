@@ -1,4 +1,4 @@
-import Model from "./Model";
-import Connection from "./Connection";
+import Model, { ModelInput } from "./Model";
+import Connection, { ConnectionInput } from "./Connection";
 
-export { Model, Connection };
+export { Model, ModelInput, Connection, ConnectionInput };

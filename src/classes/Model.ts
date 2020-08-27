@@ -1,13 +1,13 @@
 import { DocumentNode } from "graphql";
 import { SessionOptions } from "../types";
 
-interface ModelInput {
+export interface ModelInput {
   name: string;
   document: DocumentNode;
   sessionOptions?: SessionOptions;
 }
 
-class Model<T = any> {
+export default class Model<T = any> {
   public name: string;
   private document: DocumentNode;
   private sessionOptions?: SessionOptions;
@@ -50,5 +50,3 @@ class Model<T = any> {
     // TODO
   }
 }
-
-export = Model;

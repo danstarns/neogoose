@@ -1,11 +1,11 @@
 import { Driver, Config } from "neo4j-driver";
 
-interface ConnectionInput {
+export interface ConnectionInput {
   driver: Driver;
   config: Config;
 }
 
-class Connection {
+export default class Connection {
   public driver: Driver;
   public config: Config;
 
@@ -14,5 +14,3 @@ class Connection {
     this.config = input.config;
   }
 }
-
-export = Connection;
