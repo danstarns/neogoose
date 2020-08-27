@@ -189,6 +189,29 @@ describe("methods/model", () => {
       }
     });
 
+    it("should throw invalid connection", () => {
+      const runtime: Runtime = {
+        models: [],
+        connections: [],
+      };
+
+      try {
+        model(runtime)("User", {
+          typeDefs: `
+            type User {
+              name: String!
+            }
+          `,
+          // @ts-ignore
+          connection: {},
+        });
+
+        throw new Error("I should not throw");
+      } catch (error) {
+        expect(error.message).to.equal("invalid connection");
+      }
+    });
+
     it("should return an instance of Model", () => {
       const runtime: Runtime = {
         connections: [],

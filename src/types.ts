@@ -15,6 +15,7 @@ export type Runtime = {
 export interface ModelOptions {
   typeDefs: TypeDefsUnion;
   sessionOptions?: SessionOptions;
+  connection?: Connection;
 }
 
 export interface SessionOptions {

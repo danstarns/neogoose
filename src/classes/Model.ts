@@ -4,6 +4,7 @@ import {
   InputObjectTypeDefinitionNode,
 } from "graphql";
 import { SessionOptions, Runtime } from "../types";
+import { Connection } from "../classes";
 
 interface Inputs {
   ON_CREATE: InputObjectTypeDefinitionNode;
@@ -17,6 +18,7 @@ export interface ModelInput {
   node: ObjectTypeDefinitionNode;
   inputs: Inputs;
   runtime: Runtime;
+  connection?: Connection;
 }
 
 export default class Model<T = any> {

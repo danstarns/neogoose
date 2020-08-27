@@ -1,5 +1,5 @@
 import { Runtime, ModelOptions } from "../types";
-import { Model, ModelInput } from "../classes";
+import { Model, ModelInput, Connection } from "../classes";
 import {
   parseTypeDefs,
   getNodeByName,
@@ -98,6 +98,14 @@ function model<T = any>(runtime: Runtime) {
 
         input.inputs.ON_MATCH = onMatchInput;
       }
+    }
+
+    if (options.connection) {
+      if (!(options.connection instanceof Connection)) {
+        throw new Error("invalid connection");
+      }
+
+      input.connection = options.connection;
     }
 
     document = removeValidationDirective(document);
