@@ -6,7 +6,7 @@ on:
       - "*"
 
 jobs:
-  build:
+  pre_build_test:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -18,7 +18,7 @@ jobs:
       - run: npm test
 
   publish-npm:
-    needs: build
+    needs: pre_build_test
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -27,7 +27,6 @@ jobs:
           node-version: 12
           registry-url: https://registry.npmjs.org/
       - run: npm ci
-      - run: npm install --no-save neo4j-driver
       - run: npm run build
       - run: npm publish
         env:
