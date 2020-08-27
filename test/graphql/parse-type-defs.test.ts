@@ -1,11 +1,11 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import { expect } from "chai";
 import { describe } from "mocha";
-import parseTypeDefs from "../../src/utils/parse-type-defs";
+import parseTypeDefs from "../../src/graphql/parse-type-defs";
 import { print, parse } from "graphql";
 import * as path from "path";
 
-describe("utils/parseTypeDefs", () => {
+describe("graphql/parseTypeDefs", () => {
   describe("validation", () => {
     it("should be a function", () => {
       expect(parseTypeDefs).to.be.a("function");
