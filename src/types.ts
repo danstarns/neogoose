@@ -1,5 +1,5 @@
 import { Connection, Model } from "./classes";
-import { DocumentNode } from "graphql";
+import { DocumentNode, GraphQLSchema } from "graphql";
 import { SessionMode } from "neo4j-driver";
 
 export type TypeDefsUnion = string | DocumentNode;
@@ -10,6 +10,7 @@ export type Runtime = {
   connection?: Connection;
   // Connections created with createConnection
   connections: Connection[];
+  schema: GraphQLSchema;
 };
 
 export interface ModelOptions {
