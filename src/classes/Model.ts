@@ -3,18 +3,20 @@ import {
   ObjectTypeDefinitionNode,
   InputObjectTypeDefinitionNode,
 } from "graphql";
-import { SessionOptions } from "../types";
+import { SessionOptions, Runtime } from "../types";
 
 interface Inputs {
   ON_CREATE: InputObjectTypeDefinitionNode;
   ON_MATCH: InputObjectTypeDefinitionNode;
 }
+
 export interface ModelInput {
   name: string;
   document: DocumentNode;
   sessionOptions?: SessionOptions;
   node: ObjectTypeDefinitionNode;
   inputs: Inputs;
+  runtime: Runtime;
 }
 
 export default class Model<T = any> {
@@ -23,6 +25,7 @@ export default class Model<T = any> {
   public sessionOptions?: SessionOptions;
   public node: ObjectTypeDefinitionNode;
   public inputs: Inputs;
+  private runtime: Runtime;
 
   constructor(input: ModelInput) {
     this.name = input.name;
@@ -30,6 +33,7 @@ export default class Model<T = any> {
     this.sessionOptions = input.sessionOptions;
     this.node = input.node;
     this.inputs = input.inputs;
+    this.runtime = input.runtime;
   }
 
   createOne(): void {

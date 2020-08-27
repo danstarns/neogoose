@@ -31,6 +31,7 @@ function model<T = any>(runtime: Runtime) {
       name,
       // @ts-ignore
       inputs: {},
+      runtime,
     };
 
     if (options.sessionOptions) {
