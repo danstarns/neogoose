@@ -242,11 +242,11 @@ const Post = neogoose.model(
 const user = await User.create({
     posts: [
      { 
-        relation: { 
+        relationship: { 
             properties: {
                 date: new Date().toISOString()
             },
-            labels: ["CREATED"]
+            label: "CREATED"
         }, 
         node: { 
             title: "COOL 🍻"
