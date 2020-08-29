@@ -141,7 +141,7 @@ const users = await User.deleteOne(
 const users = await User.deleteMany([ ... ]);
 ```
 
-#### Field Resolvers
+### Field Resolvers
 ```js
 const User = neogoose.model(
     "User",
@@ -192,7 +192,7 @@ const User = neogoose.model(
 );
 ```
 
-#### Auto Input
+### Auto Input
 ⚠ If you don't specify `@Validation` an auto generated `input` will be made based on the provided `type`. **Nested `input` types are not supported!**
 
 **Before**
@@ -276,7 +276,7 @@ const user = await User.create({
 });
 ```
 
-#### Validate Relationships
+### Validate Relationships
 > Use `ON_CREATE` and `ON_MATCH`, the rules for [Auto Input](#auto-input) applies. 
 
 ```js
