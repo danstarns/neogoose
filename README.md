@@ -141,6 +141,26 @@ const users = await User.deleteOne(
 const users = await User.deleteMany([ ... ]);
 ```
 
+#### Field Resolvers
+```js
+const User = neogoose.model(
+    "User",
+    {
+        typeDefs: `
+            type User {
+                id: ID!
+                name: String!
+                email: String!
+                resolved: String!
+            }
+        `,
+        fields: {
+            id: (root) => root.id, // Not needed
+            resolved: () => "I was Resolved"
+        }
+    }
+);
+```
 
 ### Validate Input
 > Built in support for [graphql-constraint-directive](https://github.com/confuser/graphql-constraint-directive) & homemade `@Validation` directive.
