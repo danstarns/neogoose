@@ -5,6 +5,7 @@ import getInputByName from "./get-input-by-name";
 import removeValidationDirective from "./remove-validation-directive";
 import createValidationSchema from "./create-validation-schema";
 import getRelationshipDirective from "./get-relationship-directive";
+import removeRelationshipDirective from "./remove-relationship-directive";
 
 export {
   getNodeByName,
@@ -14,4 +15,5 @@ export {
   removeValidationDirective,
   createValidationSchema,
   getRelationshipDirective,
+  removeRelationshipDirective,
 };
