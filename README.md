@@ -67,7 +67,7 @@ const User = neogoose.model(
 );
 ```
 
-⚠ Models are not designed to support querying relationships **use a [session](#creating-a-session) for this**. This library is designed to place a `CRUD` api over nodes, with the exemption of [creating relationships](#creating-relationships).
+⚠ Models are not designed to support querying relationships **use a [session](#creating-a-session) for this**. This library is designed to place a `CRUD` api over nodes, with the exemption of [creating relationships](#creating-relationships). You also create a [Executable schema](#executable-schema) to execute more complex queries.
 
 ### Creating a session
 ```js
@@ -80,6 +80,12 @@ const session = await neogoose.session();
 ### Retrieving a model
 ```js
 const user = neogoose.model("User");
+```
+
+### Executable schema
+> Compile your models into an [neo4js-graphql](https://grandstack.io/docs/neo4j-graphql-js-quickstart) augmented schema.
+```js
+const schema = neogoose.makeAugmentedSchema();
 ```
 
 ### Creating Nodes
@@ -170,19 +176,13 @@ const User = neogoose.model(
     "User",
     {
         typeDefs: `
-            input UserCreate {
+            input UserProperties {
                 id: ID! @constraint(minLength: 5, format: "uid")
-                name: String! @constraint(minLength: 5)
-                email: String! @constraint(minLength: 5, format: "email")
+                name: String @constraint(minLength: 5)
+                email: String @constraint(minLength: 5, format: "email")
             }
 
-            input UserUpdate {
-                name: String! @constraint(minLength: 5)
-                email: String! @constraint(minLength: 5, format: "email")
-            }
-
-
-            type User @Validation(ON_CREATE: UserCreate, ON_MATCH: UserUpdate) {
+            type User @Validation(properties: UserProperties) {
                 id: ID!
                 name: String!
                 email: String!
@@ -214,13 +214,13 @@ const User = neogoose.model(
 ```js
 {
     typeDefs: `
-        input AUTO_GENERATED { # Default if you don't specify ON_CREATE or ON_MATCH
+        input AUTO_GENERATED { # Default if you don't specify properties
             id: ID!
             name: String!
             email: String!  
         }
 
-        type User @Validation(ON_CREATE: AUTO_GENERATED, ON_MATCH: AUTO_GENERATED) {
+        type User @Validation(properties: AUTO_GENERATED) {
             id: ID!
             name: String!
             email: String!
@@ -236,13 +236,8 @@ const User = neogoose.model(
     "User",
     {
         typeDefs: `
-            type UserPostCreatedProperties {
-                date: String!
-            }
-
-
             type User {
-                posts: [Post] @Relationship(properties: UserPostCreatedProperties) # -> OUT direction
+                posts: [Post] @Relationship(direction: "OUT", label: "POSTED")
             }
         `
     }
@@ -262,11 +257,8 @@ const Post = neogoose.model(
 const user = await User.create({
     posts: [
      { 
-        relationship: { 
-            properties: {
-                date: new Date().toISOString()
-            },
-            label: "CREATED"
+        properties: {
+            date: new Date().toISOString()
         }, 
         node: { 
             title: "COOL 🍻"
@@ -277,32 +269,24 @@ const user = await User.create({
 ```
 
 ### Validate Relationships
-> Use `ON_CREATE` and `ON_MATCH`, the rules for [Auto Input](#auto-input) applies. 
+> Use `properties`, the rules for [Auto Input](#auto-input) applies. 
 
 ```js
 const User = neogoose.model(
     "User",
     {
         typeDefs: `
-            type UserPostRelation {
+            input UserPostProperties {
                 date: String!
             }
 
-            input UserPostRelationInput {
-                date: String!
-            }
-
-            input UserInput { # don't specify posts validation here
+            input UserInput { # ⚠ don't specify 'posts' field here.
                 name: String!
             }
 
-            type User @Validation(ON_CREATE: UserInput, ON_MATCH: UserInput) {
+            type User @Validation(properties: UserInput) {
                 name: String!
-                posts: [Post] @Relationship(
-                    properties: UserPostRelation,
-                    ON_CREATE: UserPostRelationInput,
-                    ON_MATCH: UserPostRelationInput
-                ) # -> OUT direction
+                posts: [Post]! @Relationship(properties: UserPostProperties, direction: "OUT")
             }
         `
     }
