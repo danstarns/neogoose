@@ -4,7 +4,7 @@
 Node.js Neo4j OGM inspired by [Mongoose](https://github.com/Automattic/mongoose) & [GraphQL](https://graphql.org/)
 
 # Installation
-First install [Node.js](https://nodejs.org/en/) and [Neo4j](https://neo4j.com/). Then:
+First install [Node.js](https://nodejs.org/en/), then start [Neo4j](https://neo4j.com/) & finally...
 
 ```
 $ npm install neogoose
