@@ -6,6 +6,7 @@ import removeValidationDirective from "./remove-validation-directive";
 import createValidationSchema from "./create-validation-schema";
 import getRelationshipDirective from "./get-relationship-directive";
 import removeRelationshipDirective from "./remove-relationship-directive";
+import getFieldTypeName from "./get-field-type-name";
 
 export {
   getNodeByName,
@@ -16,4 +17,5 @@ export {
   createValidationSchema,
   getRelationshipDirective,
   removeRelationshipDirective,
+  getFieldTypeName,
 };
