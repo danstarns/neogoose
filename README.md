@@ -168,8 +168,8 @@ const User = neogoose.model(
 );
 ```
 
-### Validate Input
-> Built in support for [graphql-constraint-directive](https://github.com/confuser/graphql-constraint-directive) & homemade `@Validation` directive.
+### Node Properties
+> Built in support for `@Validation` directive.
 
 ```js
 const User = neogoose.model(
@@ -177,9 +177,9 @@ const User = neogoose.model(
     {
         typeDefs: `
             input UserProperties {
-                id: ID! @constraint(minLength: 5, format: "uid")
-                name: String @constraint(minLength: 5)
-                email: String @constraint(minLength: 5, format: "email")
+                id: ID! 
+                name: String
+                email: String
             }
 
             type User @Validation(properties: UserProperties) {
@@ -228,6 +228,32 @@ const User = neogoose.model(
     `
 }
 ```
+
+### Directives
+> Built in support for [graphql-constraint-directive](https://github.com/confuser/graphql-constraint-directive).
+
+```js
+const User = neogoose.model(
+    "User",
+    {
+        typeDefs: `
+            input UserProperties {
+                id: ID! @constraint(minLength: 5, format: "uid")
+                name: String @constraint(minLength: 5)
+                email: String @constraint(minLength: 5, format: "email")
+            }
+
+            type User @Validation(properties: UserProperties) {
+                id: ID!
+                name: String!
+                email: String!
+            }
+        `
+    }
+);
+```
+⚠ `@constraint` directives are removed before augmented schema generation.
+
 ### Creating Relationships
 > Usage of in-built `@Relationship()` directive
 
@@ -265,7 +291,7 @@ const user = await User.create({
 });
 ```
 
-### Validate Relationship properties
+### Relationship Properties
 > Use `properties`, the rules for [Auto Input](#auto-input) applies. 
 
 ```js
