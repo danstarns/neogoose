@@ -67,7 +67,7 @@ const User = neogoose.model(
 );
 ```
 
-⚠ Models are not designed to support querying relationships **use a [session](#creating-a-session) for this**. This library is designed to place a `CRUD` api over nodes, with the exemption of [creating relationships](#creating-relationships). You also create a [Executable schema](#executable-schema) to execute more complex queries.
+⚠ Models are not designed to support querying relationships **use a [session](#creating-a-session) for this**. This library is designed to place a `CRUD` api over nodes, with the exemption of [creating relationships](#creating-relationships). You also create an [Executable schema](#executable-schema) to execute more complex queries.
 
 ### Creating a session
 ```js
@@ -83,7 +83,7 @@ const user = neogoose.model("User");
 ```
 
 ### Executable schema
-> Compile your models into an [neo4js-graphql](https://grandstack.io/docs/neo4j-graphql-js-quickstart) augmented schema.
+> Compile your models into an [neo4js-graphql-js](https://grandstack.io/docs/neo4j-graphql-js-quickstart) augmented schema.
 ```js
 const schema = neogoose.makeAugmentedSchema();
 ```
@@ -257,9 +257,6 @@ const Post = neogoose.model(
 const user = await User.create({
     posts: [
      { 
-        properties: {
-            date: new Date().toISOString()
-        }, 
         node: { 
             title: "COOL 🍻"
         }
@@ -268,7 +265,7 @@ const user = await User.create({
 });
 ```
 
-### Validate Relationships
+### Validate Relationship properties
 > Use `properties`, the rules for [Auto Input](#auto-input) applies. 
 
 ```js
@@ -291,6 +288,19 @@ const User = neogoose.model(
         `
     }
 );
+
+const user = await User.create({
+    posts: [
+     { 
+        properties: {
+            date: new Date().toISOString()
+        }, 
+        node: { 
+            title: "COOL 🍻"
+        }
+     }
+    ]
+});
 ```
 
- ⚠ Notice you would not specify `posts` as a `Field` on `input` `UserInput`
+⚠ Notice you would not specify `posts` as a `Field` on `input` `UserInput`
