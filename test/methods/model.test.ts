@@ -129,74 +129,6 @@ describe("methods/model", () => {
       });
     });
 
-    it("should throw @Validation ON_CREATE and or ON_MATCH required", () => {
-      // @ts-ignore
-      const runtime: Runtime = {
-        models: [],
-        connections: [],
-      };
-
-      try {
-        model(runtime)("User", {
-          typeDefs: `
-            type User @Validation {
-              name: String!
-            }
-        `,
-        });
-
-        throw new Error("I should not throw");
-      } catch (error) {
-        expect(error.message).to.equal(
-          "@Validation ON_CREATE and or ON_MATCH required"
-        );
-      }
-    });
-
-    it("should throw ON_MATCH not found", () => {
-      // @ts-ignore
-      const runtime: Runtime = {
-        models: [],
-        connections: [],
-      };
-
-      try {
-        model(runtime)("User", {
-          typeDefs: `
-            type User @Validation(ON_MATCH: ABC) {
-              name: String!
-            }
-        `,
-        });
-
-        throw new Error("I should not throw");
-      } catch (error) {
-        expect(error.message).to.equal("input ON_MATCH not found");
-      }
-    });
-
-    it("should throw ON_CREATE not found", () => {
-      // @ts-ignore
-      const runtime: Runtime = {
-        models: [],
-        connections: [],
-      };
-
-      try {
-        model(runtime)("User", {
-          typeDefs: `
-            type User @Validation(ON_CREATE: ABC) {
-              name: String!
-            }
-        `,
-        });
-
-        throw new Error("I should not throw");
-      } catch (error) {
-        expect(error.message).to.equal("input ON_CREATE not found");
-      }
-    });
-
     it("should throw invalid connection", () => {
       // @ts-ignore
       const runtime: Runtime = {
@@ -218,6 +150,62 @@ describe("methods/model", () => {
         throw new Error("I should not throw");
       } catch (error) {
         expect(error.message).to.equal("invalid connection");
+      }
+    });
+
+    it("should throw @Validation(properties) properties required", () => {
+      try {
+        // @ts-ignore
+        const runtime: Runtime = {
+          connections: [],
+          models: [],
+        };
+
+        const _model = model(runtime)("User", {
+          typeDefs: `
+            input UserValidation {
+              name: String!
+            }
+
+
+            type User @Validation {
+              name: String!
+            }
+          `,
+        });
+
+        throw new Error("I should not throw");
+      } catch (error) {
+        expect(error.message).to.equal(
+          "@Validation(properties) properties required"
+        );
+      }
+    });
+
+    it("should properties Test not found", () => {
+      try {
+        // @ts-ignore
+        const runtime: Runtime = {
+          connections: [],
+          models: [],
+        };
+
+        const _model = model(runtime)("User", {
+          typeDefs: `
+            input UserValidation {
+              name: String!
+            }
+
+
+            type User @Validation(properties: Test) {
+              name: String!
+            }
+          `,
+        });
+
+        throw new Error("I should not throw");
+      } catch (error) {
+        expect(error.message).to.equal("properties Test not found");
       }
     });
 
@@ -289,15 +277,13 @@ describe("methods/model", () => {
           name: String!
         }
 
-        type User @Validation(ON_MATCH:UserValidation, ON_CREATE: UserValidation) {
+        type User @Validation(properties:UserValidation) {
           name: String!
         }
       `,
       });
 
-      expect(user.inputs.ON_CREATE.name.value).to.equal("UserValidation");
-      expect(user.inputs.ON_MATCH.name.value).to.equal("UserValidation");
-      expect(user.node.name.value).to.equal("User");
+      expect(user.properties.name.value).to.equal("UserValidation");
     });
   });
 });

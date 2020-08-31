@@ -2,6 +2,7 @@ import { Runtime } from "../types";
 import { AuthToken, Config } from "neo4j-driver";
 import { Connection } from "../classes";
 import * as neo4j from "../neo4j";
+import { createValidationSchema } from "../graphql";
 
 function createConnection(runtime: Runtime) {
   return async (
@@ -17,6 +18,8 @@ function createConnection(runtime: Runtime) {
     });
 
     runtime.connections.push(connection);
+
+    runtime.validationSchema = createValidationSchema({ runtime });
 
     return connection;
   };

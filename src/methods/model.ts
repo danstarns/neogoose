@@ -51,53 +51,37 @@ function model<T = any>(runtime: Runtime) {
     const node = getNodeByName({ document, name });
 
     if (!node) {
-      throw new Error("typeDefs requires 'type User'/ObjectTypeDefinition");
+      throw new Error(`typeDefs requires 'type ${name}'/ObjectTypeDefinition`);
     }
 
     input.node = node;
 
-    const validationDirective = getValidationDirective(node);
+    const directive = getValidationDirective(node);
 
-    if (validationDirective) {
-      const onCreateArg = validationDirective.arguments.find(
-        (x) => x.name.value === "ON_CREATE"
+    if (directive) {
+      const propertiesArg = directive.arguments.find(
+        (x) => x.name.value === "properties"
       );
 
-      const onMatchArg = validationDirective.arguments.find(
-        (x) => x.name.value === "ON_MATCH"
-      );
-
-      if (!onCreateArg && !onMatchArg) {
-        throw new Error("@Validation ON_CREATE and or ON_MATCH required");
+      if (!propertiesArg) {
+        throw new Error("@Validation(properties) properties required");
       }
 
-      if (onCreateArg) {
-        const onCreateInput = getInputByName({
-          document,
-          // @ts-ignore
-          name: onCreateArg.value.value,
-        });
+      // @ts-ignore
+      const name = propertiesArg.value?.value;
 
-        if (!onCreateInput) {
-          throw new Error(`input ${onCreateArg.name.value} not found`);
-        }
+      const propertiesInput = getInputByName({ document, name });
 
-        input.inputs.ON_CREATE = onCreateInput;
+      if (!propertiesInput) {
+        throw new Error(`properties ${name} not found`);
       }
 
-      if (onMatchArg) {
-        const onMatchInput = getInputByName({
-          document,
-          // @ts-ignore
-          name: onMatchArg.value.value,
-        });
+      input.properties = propertiesInput;
+    }
 
-        if (!onMatchInput) {
-          throw new Error(`input ${onMatchArg.name.value} not found`);
-        }
-
-        input.inputs.ON_MATCH = onMatchInput;
-      }
+    if (options.fields) {
+      // TODO validate against fields
+      input.fields = options.fields;
     }
 
     if (options.connection) {

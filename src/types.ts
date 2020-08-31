@@ -10,13 +10,21 @@ export type Runtime = {
   connection?: Connection;
   // Connections created with createConnection
   connections: Connection[];
-  schema: GraphQLSchema;
+  validationSchema?: GraphQLSchema;
 };
+
+export type Resolve = (
+  root: any,
+  args: { [k: string]: any },
+  context: { [k: string]: any },
+  info: DocumentNode
+) => void;
 
 export interface ModelOptions {
   typeDefs: TypeDefsUnion;
   sessionOptions?: SessionOptions;
   connection?: Connection;
+  fields?: { [k: string]: Resolve };
 }
 
 export interface SessionOptions {

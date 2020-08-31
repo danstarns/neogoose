@@ -9,6 +9,7 @@ const createConnection = proxyquire("../../src/methods/create-connection.ts", {
   "../neo4j": {
     connect: () => ({}),
   },
+  "../graphql": { createValidationSchema: () => ({}) },
 });
 
 describe("methods/createConnection", () => {

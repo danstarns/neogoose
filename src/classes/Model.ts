@@ -2,23 +2,28 @@ import {
   DocumentNode,
   ObjectTypeDefinitionNode,
   InputObjectTypeDefinitionNode,
+  graphql,
 } from "graphql";
-import { SessionOptions, Runtime } from "../types";
+import { SessionOptions, Runtime, Resolve } from "../types";
 import { Connection } from "../classes";
-
-interface Inputs {
-  ON_CREATE: InputObjectTypeDefinitionNode;
-  ON_MATCH: InputObjectTypeDefinitionNode;
-}
 
 export interface ModelInput {
   name: string;
   document: DocumentNode;
   sessionOptions?: SessionOptions;
   node: ObjectTypeDefinitionNode;
-  inputs: Inputs;
+  properties?: InputObjectTypeDefinitionNode;
   runtime: Runtime;
   connection?: Connection;
+  fields?: { [k: string]: Resolve };
+}
+
+interface CreateOneInput {
+  [k: string]:
+    | any
+    | any[]
+    | { properties: { [kk: string]: any }; node: CreateOneInput }
+    | { properties: { [kk: string]: any }; node: CreateOneInput }[];
 }
 
 export default class Model<T = any> {
@@ -26,7 +31,8 @@ export default class Model<T = any> {
   public document: DocumentNode;
   public sessionOptions?: SessionOptions;
   public node: ObjectTypeDefinitionNode;
-  public inputs: Inputs;
+  public properties?: InputObjectTypeDefinitionNode;
+  public fields?: { [k: string]: Resolve };
   private runtime: Runtime;
 
   constructor(input: ModelInput) {
@@ -34,12 +40,27 @@ export default class Model<T = any> {
     this.document = input.document;
     this.sessionOptions = input.sessionOptions;
     this.node = input.node;
-    this.inputs = input.inputs;
+    this.properties = input.properties;
     this.runtime = input.runtime;
+    this.fields = input.fields;
   }
 
-  createOne(): void {
-    // TODO
+  async createOne(input: CreateOneInput): Promise<void> {
+    const { errors } = await graphql({
+      schema: this.runtime.validationSchema,
+      source: `
+        mutation ($CreateOneInput: User_Input) {
+          ${this.name}CreateOneInput(input: $CreateOneInput)
+        }
+      `,
+      variableValues: {
+        CreateOneInput: input,
+      },
+    });
+
+    if (errors) {
+      throw new Error(errors[0].message);
+    }
   }
 
   createMany(): void {
