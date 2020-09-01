@@ -4,27 +4,13 @@ import {
   InputObjectTypeDefinitionNode,
   graphql,
 } from "graphql";
-import { SessionOptions, Runtime, Resolvers } from "../types";
-import { Connection } from "../classes";
-
-export interface ModelInput {
-  name: string;
-  document: DocumentNode;
-  sessionOptions?: SessionOptions;
-  node: ObjectTypeDefinitionNode;
-  properties?: InputObjectTypeDefinitionNode;
-  runtime: Runtime;
-  connection?: Connection;
-  resolvers?: Resolvers;
-}
-
-interface CreateOneInput {
-  [k: string]:
-    | any
-    | any[]
-    | { properties: { [kk: string]: any }; node: CreateOneInput }
-    | { properties: { [kk: string]: any }; node: CreateOneInput }[];
-}
+import {
+  SessionOptions,
+  Runtime,
+  Resolvers,
+  CreateOneInput,
+  ModelInput,
+} from "../types";
 
 export default class Model<T = any> {
   public name: string;

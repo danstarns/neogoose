@@ -1,5 +1,5 @@
-import { Runtime, ModelOptions } from "../types";
-import { Model, ModelInput, Connection } from "../classes";
+import { Runtime, CreateOrGetModel, ModelInput } from "../types";
+import { Model, Connection } from "../classes";
 import {
   parseTypeDefs,
   getNodeByName,
@@ -8,8 +8,8 @@ import {
   removeValidationDirective,
 } from "../graphql";
 
-function model<T = any>(runtime: Runtime) {
-  return (name: string, options?: ModelOptions): Model => {
+function model<T = any>(runtime: Runtime): CreateOrGetModel {
+  return (name, options) => {
     if (!name) {
       throw new TypeError("name required");
     }

@@ -1,9 +1,5 @@
-import { Driver, Config } from "neo4j-driver";
-
-export interface ConnectionInput {
-  driver: Driver;
-  config: Config;
-}
+import { ConnectionInput } from "../types";
+import { Config, Driver } from "neo4j-driver";
 
 export default class Connection {
   public driver: Driver;

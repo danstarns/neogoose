@@ -1,7 +1,13 @@
 import { Connection, Model } from "./classes";
-import { DocumentNode, GraphQLSchema } from "graphql";
-import { SessionMode } from "neo4j-driver";
+import {
+  DocumentNode,
+  GraphQLSchema,
+  ObjectTypeDefinitionNode,
+  InputObjectTypeDefinitionNode,
+} from "graphql";
+import { SessionMode, Driver } from "neo4j-driver";
 import { IResolvers } from "@graphql-tools/utils";
+import { AuthToken, Config } from "neo4j-driver";
 
 export type TypeDefsUnion = string | DocumentNode;
 
@@ -46,9 +52,55 @@ export interface ModelOptions {
   resolvers?: Resolvers;
 }
 
+/**
+ * Input to Class constructor
+ */
+export interface ModelInput {
+  name: string;
+  document: DocumentNode;
+  sessionOptions?: SessionOptions;
+  node: ObjectTypeDefinitionNode;
+  properties?: InputObjectTypeDefinitionNode;
+  runtime: Runtime;
+  connection?: Connection;
+  resolvers?: Resolvers;
+}
+
+/**
+ * Input to Class constructor
+ */
+export interface ConnectionInput {
+  driver: Driver;
+  config: Config;
+}
+
 export interface SessionOptions {
   defaultAccessMode?: SessionMode;
   bookmarks?: string | string[];
   fetchSize?: number;
   database?: string;
 }
+
+export type Connect = (
+  url: string,
+  authToken?: AuthToken,
+  config?: Config
+) => Promise<Connection>;
+
+export type CreateConnection = (
+  url: string,
+  authToken?: AuthToken,
+  config?: Config
+) => Promise<Connection>;
+
+export type CreateOrGetModel = (name: string, options?: ModelOptions) => Model;
+
+export interface CreateOneInput {
+  [k: string]:
+    | any
+    | any[]
+    | { properties: { [kk: string]: any }; node: CreateOneInput }
+    | { properties: { [kk: string]: any }; node: CreateOneInput }[];
+}
+
+export { Connection, Model };
