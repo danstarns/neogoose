@@ -91,7 +91,7 @@ const user = neogoose.model("User");
 const schema = neogoose.makeAugmentedSchema();
 ```
 
-### Creating Nodes
+### Creating
 1. `create`
 2. `createMany`
 
@@ -105,7 +105,7 @@ const user = await User.create({
 const users = await User.createMany([ ... ])
 ```
 
-### Find Nodes 
+### Find 
 1. `findMany`
 3. `findOne`
 
@@ -119,7 +119,7 @@ const dan = await User.findOne({
 });
 ```
 
-### Update Nodes 
+### Update 
 1. `updateOne`
 2. `updateMany`
 
@@ -136,7 +136,7 @@ const users = await User.updateOne(
 const users = await User.updateMany([ ... ]);
 ```
 
-### Delete Nodes 
+### Delete 
 1. `deleteOne`
 2. `deleteMany`
 
@@ -148,6 +148,20 @@ const users = await User.deleteOne(
 );
 
 const users = await User.deleteMany([ ... ]);
+```
+
+### Merge 
+1. `mergeOne`
+2. `mergeMany`
+
+```js
+const users = await User.mergeOne(
+    {
+        name: "Dan",
+    }
+);
+
+const users = await User.mergeMany([ ... ]);
 ```
 
 ### Field Resolvers
