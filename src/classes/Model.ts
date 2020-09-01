@@ -33,6 +33,7 @@ export default class Model<T = any> {
   public node: ObjectTypeDefinitionNode;
   public properties?: InputObjectTypeDefinitionNode;
   public fields?: { [k: string]: Resolve };
+  public selectionSet?: string;
   private runtime: Runtime;
 
   constructor(input: ModelInput) {
@@ -49,7 +50,7 @@ export default class Model<T = any> {
     const { errors } = await graphql({
       schema: this.runtime.validationSchema,
       source: `
-        mutation ($CreateOneInput: User_Input) {
+        mutation ($CreateOneInput: User_Input!) {
           ${this.name}CreateOneInput(input: $CreateOneInput)
         }
       `,

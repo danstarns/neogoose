@@ -7,7 +7,11 @@ import {
 import { Runtime } from "../types";
 import { Model } from "../classes";
 import getRelationshipDirective from "./get-relationship-directive";
-import { schemaComposer, ObjectTypeComposer } from "graphql-compose";
+import {
+  schemaComposer,
+  ObjectTypeComposer,
+  ComposeOutputType,
+} from "graphql-compose";
 import {
   constraintDirective,
   constraintDirectiveTypeDefs,
@@ -65,12 +69,14 @@ function createValidationSchema(input: { runtime: Runtime }): GraphQLSchema {
     }, {});
 
     const composeRelationFields = relations.reduce((res, f) => {
-      const keyName = f.name.value;
-      const { prettyBy } = getFieldTypeName(f);
+      const name = f.name.value;
+      const type = getFieldTypeName(f).prettyBy(`${model.name}_${name}_Input`);
 
       return {
         ...res,
-        [keyName]: prettyBy(`${model.name}_${keyName}_Input`),
+        [name]: {
+          type,
+        },
       };
     }, {});
 
@@ -82,9 +88,11 @@ function createValidationSchema(input: { runtime: Runtime }): GraphQLSchema {
         definitions: [model.properties],
       });
 
-      schemaComposer.createInputTC(
+      const inp = schemaComposer.createInputTC(
         typeDefs.replace(name, `${model.name}_Input`)
       );
+
+      inp.addFields(composeRelationFields);
     } else {
       schemaComposer.createInputTC({
         name: `${model.name}_Input`,
@@ -96,19 +104,20 @@ function createValidationSchema(input: { runtime: Runtime }): GraphQLSchema {
     }
 
     relations.forEach((field) => {
-      const { name: referenceName } = getFieldTypeName(field);
       const referenceModel = input.runtime.models.find(
-        (x) => x.name === referenceName
+        (x) => x.name === getFieldTypeName(field).name
       );
+
       createNode(referenceModel);
 
-      const keyName = field.name.value;
-      node.removeField(keyName);
+      node.removeField(field.name.value);
 
       const directive = getRelationshipDirective(field);
 
       if (!directive) {
-        throw new Error(`${model.name}.${keyName} @Relationship required`);
+        throw new Error(
+          `${model.name}.${field.name.value} @Relationship required`
+        );
       }
 
       const propertiesArgument = directive.arguments.find(
@@ -126,7 +135,7 @@ function createValidationSchema(input: { runtime: Runtime }): GraphQLSchema {
 
         if (!propertiesInput) {
           throw new Error(
-            `${model.name}.${keyName} @Relationship(properties: ${name}) ${name} not found`
+            `${model.name}.${field.name.value} @Relationship(properties: ${name}) ${name} not found`
           );
         }
 
@@ -136,21 +145,25 @@ function createValidationSchema(input: { runtime: Runtime }): GraphQLSchema {
         });
 
         schemaComposer.createInputTC(
-          typeDefs.replace(name, `${model.name}_${keyName}_Properties`)
+          typeDefs.replace(name, `${model.name}_${field.name.value}_Properties`)
         );
 
         schemaComposer.createInputTC({
-          name: `${model.name}_${keyName}_Input`,
+          name: `${model.name}_${field.name.value}_Input`,
           fields: {
-            properties: `${model.name}_${keyName}_Properties`,
-            node: `${model.name}_Input`,
+            properties: {
+              type: `${model.name}_${field.name.value}_Properties`,
+            },
+            node: { type: `${referenceModel.name}_Input` },
           },
         });
       } else {
         schemaComposer.createInputTC({
-          name: `${model.name}_${keyName}_Input`,
+          name: `${model.name}_${field.name.value}_Input`,
           fields: {
-            node: `${model.name}_Input`,
+            node: {
+              type: `${referenceModel.name}_Input`,
+            },
           },
         });
       }
@@ -171,33 +184,48 @@ function createValidationSchema(input: { runtime: Runtime }): GraphQLSchema {
       });
     }
 
+    schemaComposer.createInputTC({
+      name: `${model.name}_Find_Input`,
+      fields: Object.entries(composeFields).reduce(
+        (res, [k, v]: [string, { type: ComposeOutputType<any> }]) => ({
+          ...res,
+          [k]: { type: v.type.getTypeName().replace(/!/g, "") },
+        }),
+        {}
+      ),
+    });
+
     schemaComposer.Mutation.addFields({
       [`${model.name}CreateOneInput`]: {
         type: "Boolean",
         resolve: () => true,
         args: {
-          input: `${model.name}_Input`,
+          input: `${model.name}_Input!`,
         },
       },
       [`${model.name}CreateManyInput`]: {
         type: "Boolean",
         resolve: () => true,
         args: {
-          input: `[${model.name}_Input]!`,
+          input: `[${model.name}_Input!]!`,
         },
       },
     });
 
     schemaComposer.Query.addFields({
+      [`${model.name}FindOneInput`]: {
+        type: `${model.name}`,
+        resolve: () => true,
+        args: {
+          input: `${model.name}_Find_Input!`,
+        },
+      },
       [`${model.name}FindOneOutput`]: {
         type: `${model.name}`,
         resolve: (root, args, ctx) => ctx.input,
       },
-      [`${model.name}FindManyOutput`]: {
-        type: `[${model.name}]!`,
-        resolve: (root, args, ctx) => ctx.input,
-      },
     });
+
     return node;
   }
 

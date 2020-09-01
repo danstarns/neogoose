@@ -61,7 +61,7 @@ describe("graphql/createValidationSchema", () => {
 
       const schema = createValidationSchema({ runtime });
 
-      // console.log(printSchema(schema));
+      console.log(printSchema(schema));
     });
   });
 });
