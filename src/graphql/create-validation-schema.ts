@@ -169,21 +169,6 @@ function createValidationSchema(input: { runtime: Runtime }): GraphQLSchema {
       }
     });
 
-    if (model.fields) {
-      model.node.fields.forEach((field) => {
-        const resolve = model.fields[field.name.value] as any;
-
-        if (resolve) {
-          node.addFields({
-            [field.name.value]: {
-              type: node.getField(field.name.value).type.getTypeName(),
-              resolve,
-            },
-          });
-        }
-      });
-    }
-
     schemaComposer.createInputTC({
       name: `${model.name}_Find_Input`,
       fields: Object.entries(composeFields).reduce(
@@ -236,7 +221,10 @@ function createValidationSchema(input: { runtime: Runtime }): GraphQLSchema {
 
   const schema = makeExecutableSchema({
     typeDefs: [constraintDirectiveTypeDefs, typeDefs],
-    resolvers,
+    resolvers: input.runtime.models.reduce(
+      (res, m) => ({ ...res, ...(m.resolvers ? m.resolvers : {}) }),
+      resolvers
+    ),
     schemaTransforms: [constraintDirective()],
   });
 

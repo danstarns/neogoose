@@ -1,6 +1,7 @@
 import { Connection, Model } from "./classes";
 import { DocumentNode, GraphQLSchema } from "graphql";
 import { SessionMode } from "neo4j-driver";
+import { IResolvers } from "@graphql-tools/utils";
 
 export type TypeDefsUnion = string | DocumentNode;
 
@@ -13,18 +14,13 @@ export type Runtime = {
   validationSchema?: GraphQLSchema;
 };
 
-export type Resolve = (
-  root: any,
-  args: { [k: string]: any },
-  context: { [k: string]: any },
-  info: DocumentNode
-) => void;
+export type Resolvers = IResolvers;
 
 export interface ModelOptions {
   typeDefs: TypeDefsUnion;
   sessionOptions?: SessionOptions;
   connection?: Connection;
-  fields?: { [k: string]: Resolve };
+  resolvers?: Resolvers;
 }
 
 export interface SessionOptions {

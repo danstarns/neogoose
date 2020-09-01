@@ -79,9 +79,8 @@ function model<T = any>(runtime: Runtime) {
       input.properties = propertiesInput;
     }
 
-    if (options.fields) {
-      // TODO validate against fields
-      input.fields = options.fields;
+    if (options.resolvers) {
+      input.resolvers = options.resolvers;
     }
 
     if (options.connection) {

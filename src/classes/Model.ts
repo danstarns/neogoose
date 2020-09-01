@@ -4,7 +4,7 @@ import {
   InputObjectTypeDefinitionNode,
   graphql,
 } from "graphql";
-import { SessionOptions, Runtime, Resolve } from "../types";
+import { SessionOptions, Runtime, Resolvers } from "../types";
 import { Connection } from "../classes";
 
 export interface ModelInput {
@@ -15,7 +15,7 @@ export interface ModelInput {
   properties?: InputObjectTypeDefinitionNode;
   runtime: Runtime;
   connection?: Connection;
-  fields?: { [k: string]: Resolve };
+  resolvers?: Resolvers;
 }
 
 interface CreateOneInput {
@@ -32,7 +32,7 @@ export default class Model<T = any> {
   public sessionOptions?: SessionOptions;
   public node: ObjectTypeDefinitionNode;
   public properties?: InputObjectTypeDefinitionNode;
-  public fields?: { [k: string]: Resolve };
+  public resolvers?: Resolvers;
   public selectionSet?: string;
   private runtime: Runtime;
 
@@ -43,7 +43,7 @@ export default class Model<T = any> {
     this.node = input.node;
     this.properties = input.properties;
     this.runtime = input.runtime;
-    this.fields = input.fields;
+    this.resolvers = input.resolvers;
   }
 
   async createOne(input: CreateOneInput): Promise<void> {
