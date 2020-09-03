@@ -164,7 +164,7 @@ const users = await User.mergeOne(
 const users = await User.mergeMany([ ... ]);
 ```
 
-### Field Resolvers
+### Resolvers
 ```js
 const User = neogoose.model(
     "User",
@@ -177,9 +177,11 @@ const User = neogoose.model(
                 resolved: String!
             }
         `,
-        fields: {
-            id: (root) => root.id, // Not needed
-            resolved: () => "I was Resolved"
+        resolvers: {
+            User: {
+                id: (root) => root.id, // Not needed
+                resolved: () => "I was Resolved"
+            }
         }
     }
 );
@@ -272,7 +274,7 @@ const User = neogoose.model(
 ⚠ `@constraint` directives are removed before augmented schema generation.
 
 ### Creating Relationships
-> Usage of in-built `@Relationship()` directive
+> Usage of in-built `@Relationship` directive
 
 ```js
 const User = neogoose.model(
@@ -326,7 +328,11 @@ const User = neogoose.model(
 
             type User @Validation(properties: UserInput) {
                 name: String!
-                posts: [Post]! @Relationship(properties: UserPostProperties, direction: "OUT")
+                posts: [Post]! @Relationship(
+                    properties: UserPostProperties,
+                    direction: "OUT",
+                    label: "POSTED"
+                )
             }
         `
     }
