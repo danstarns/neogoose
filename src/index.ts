@@ -5,6 +5,7 @@ import {
   createConnection,
   disconnect,
   session,
+  makeAugmentedSchema,
 } from "./methods";
 
 // @ts-ignore
@@ -19,4 +20,5 @@ export = {
   createConnection: createConnection(runtime),
   disconnect: disconnect(runtime),
   session: session(runtime),
+  makeAugmentedSchema: makeAugmentedSchema(runtime),
 };

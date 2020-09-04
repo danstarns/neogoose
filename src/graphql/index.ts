@@ -7,6 +7,7 @@ import createValidationSchema from "./create-validation-schema";
 import getRelationshipDirective from "./get-relationship-directive";
 import removeRelationshipDirective from "./remove-relationship-directive";
 import getFieldTypeName from "./get-field-type-name";
+import createNeoGQLSchema from "./create-neo-gql-schema";
 
 export {
   getNodeByName,
@@ -18,4 +19,5 @@ export {
   getRelationshipDirective,
   removeRelationshipDirective,
   getFieldTypeName,
+  createNeoGQLSchema,
 };
