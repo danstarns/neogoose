@@ -292,7 +292,6 @@ const Post = neogoose.model("Post", {
         input PostInput {
           title: String!
         }   
-
         type Post @Validation(properties: PostInput){
           title: String!
           comments: [Comment] @Relationship(
