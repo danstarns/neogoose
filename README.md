@@ -279,37 +279,70 @@ const User = neogoose.model(
 > Usage of in-built `@Relationship` directive
 
 ```js
-const User = neogoose.model(
-    "User",
-    {
-        typeDefs: `
-            type User {
-                posts: [Post] @Relationship(direction: "OUT", label: "POSTED")
-            }
-        `
-    }
-);
-
-const Post = neogoose.model(
-    "Post", 
-    {
-        typeDefs: `
-            type Post {
-                title: String!
-            }
-        `
-    }
-);
-
-const user = await User.create({
-    posts: [
-     { 
-        node: { 
-            title: "COOL 🍻"
-        }
-     }
-    ]
+const Comment = neogoose.model("Comment", {
+    typeDefs: `
+      type Comment {
+        content: String!
+      }
+    `,
 });
+
+const Post = neogoose.model("Post", {
+    typeDefs: `
+        input PostInput {
+          title: String!
+        }   
+        
+        type Post @Validation(properties: PostInput){
+          title: String!
+          comments: [Comment] @Relationship(
+              direction: "OUT",
+              label: "COMMENTED"
+          )
+        }
+    `,
+});
+
+const User = neogoose.model("User", {
+    typeDefs: `
+        input UserInput {
+            name: String!
+        }
+
+        type User @Validation(properties: UserInput){
+            name: String!
+            posts: [Post] @Relationship(
+                direction: "OUT",
+                label: "POSTED"
+            )
+        }
+    `,
+});
+
+await User.createOne({
+    name: "daniel",
+    posts: [
+      {
+        node: {
+          title: "title",
+          comments: {
+            node: {
+              content: "Cool Post",
+            },
+          },
+        },
+      },
+    ],
+});
+
+/*
+Generated Cypher query 
+
+CREATE (this:User {name: "daniel"}), (uuidone:Post {title: "title"}), (uuidtwo:Comment {name: "Cool Post"})
+MERGE (this)-[:POSTED]->(uuidone)
+MERGE (uuidone)-[:COMMENTED]->(uuidtwo)
+
+*/
 ```
 
 ### Relationship Properties
