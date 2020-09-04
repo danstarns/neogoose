@@ -93,6 +93,11 @@ const user = neogoose.model("User");
 const schema = neogoose.makeAugmentedSchema();
 ```
 
+⚠ Transforms made before calling [makeAugmentedSchema](https://grandstack.io/docs/neo4j-graphql-js-quickstart)
+1. `constraint` directives removed
+2. `Relationship` directives converted to `relation`
+3. `Validation` directives removed
+
 ### Creating
 1. `create`
 2. `createMany`
