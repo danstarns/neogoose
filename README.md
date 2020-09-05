@@ -225,7 +225,7 @@ const User = neogoose.model(
 ### Selection Set
 
 Used with;
-1. `fineOne`
+1. `findOne`
 2. `findMany`
 3. `updateOne`
 4. `updateMany`
