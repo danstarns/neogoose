@@ -55,7 +55,7 @@ await neogoose.disconnect();
 ```
 
 ### Defining a Model
-> Models are defined using [GraphQL schema language](https://graphql.org/learn/schema/#type-language)
+> Models are defined using [GraphQL schema language](https://graphql.org/learn/schema/#type-language).
 
 ```js
 const User = neogoose.model(
@@ -88,26 +88,48 @@ const user = neogoose.model("User");
 ```
 
 ### Executable schema
-> Compile your models into an [neo4js-graphql-js](https://grandstack.io/docs/neo4j-graphql-js-quickstart) augmented schema.
+> Compile your models into an [neo4js-graphql-js](https://grandstack.io/docs/neo4j-graphql-js-quickstart) augmented schema
 ```js
 const schema = neogoose.makeAugmentedSchema();
 ```
 
 ⚠ Transforms made before calling [makeAugmentedSchema](https://grandstack.io/docs/neo4j-graphql-js-quickstart)
+
 1. `constraint` directives removed
 2. `Relationship` directives converted to `relation`
 3. `Validation` directives removed
+4. `@cypher` directives, along with each field removed
+4. All other schema directives [here](https://grandstack.io/docs/graphql-schema-directives) are ignored in `neogoose` land
+
+### Query
+Used with;
+1. `fineOne`
+2. `findMany`
+3. `updateOne`
+4. `updateMany`
+5. `deleteOne`
+6. `deleteMany`
+
+```js
+const dan = await User.findOne({
+    name: "Dan",
+});
+```
+
+⚠ Currently there is only support for querying simple key/value equality.
 
 ### Creating
 1. `create`
 2. `createMany`
 
 ```js
-const user = await User.create({
-    id: uuid(),
-    name: "Dan",
-    email: "email@email.com"
-});
+const user = await User.create(
+    {
+        id: uuid(),
+        name: "Dan",
+        email: "email@email.com"
+    }
+);
 
 const users = await User.createMany([ ... ])
 ```
@@ -117,13 +139,13 @@ const users = await User.createMany([ ... ])
 3. `findOne`
 
 ```js
-const users = await User.findMany({
+const query = {
     name: "Dan",
-});
+};
 
-const dan = await User.findOne({
-    name: "Dan",
-});
+const users = await User.findMany(query);
+
+const dan = await User.findOne(query);
 ```
 
 ### Update 
@@ -131,44 +153,50 @@ const dan = await User.findOne({
 2. `updateMany`
 
 ```js
-const users = await User.updateOne(
-    {
-        name: "Dan",
-    },
-    {
-        name: "naD"
-    }
+const query = {
+    name: "Dan",
+};
+
+const update = {
+    name: "naD"
+};
+
+await User.updateOne(
+    query,
+    update
 );
 
-const users = await User.updateMany([ ... ]);
+await User.updateMany(query, update);
+
+const user = await User.updateOne(
+    query,
+    update,
+    { return: true } // use to return the updated node
+);
 ```
+
+⚠ Currently there is no support for updating relationships.
 
 ### Delete 
 1. `deleteOne`
 2. `deleteMany`
 
 ```js
-const users = await User.deleteOne(
+const query = {
+    name: "Dan",
+};
+
+await User.deleteOne(
+    query, 
     {
-        name: "Dan",
+        detach: true // set to true for DETACH DELETE, delete nodes and relationships
     }
 );
 
-const users = await User.deleteMany([ ... ]);
-```
-
-### Merge 
-1. `mergeOne`
-2. `mergeMany`
-
-```js
-const users = await User.mergeOne(
-    {
-        name: "Dan",
-    }
+const users = await User.deleteMany(
+    query, 
+    { return: true } // use to return the deleted nodes
 );
-
-const users = await User.mergeMany([ ... ]);
 ```
 
 ### Resolvers
