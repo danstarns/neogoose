@@ -200,8 +200,7 @@ user.repo // neogoose
 ```js
 const user = await User.updateOne(
     query,
-    { $set: { beerEmpty: true }, // 😲
-    { return: true }
+    { $set: { loggedIn: null }
 );
 ```
 
