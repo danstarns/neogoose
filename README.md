@@ -103,7 +103,7 @@ const schema = neogoose.makeAugmentedSchema();
 
 ### Query
 Used with;
-1. `fineOne`
+1. `findOne`
 2. `findMany`
 3. `updateOne`
 4. `updateMany`
