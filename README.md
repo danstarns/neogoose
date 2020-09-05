@@ -72,7 +72,7 @@ const User = neogoose.model(
 );
 ```
 
-⚠ Models are not designed to support querying relationships **use a [session](#creating-a-session) for this**. This library is designed to place a `CRUD` api over nodes, with the exemption of [creating relationships](#creating-relationships). You also create an [Executable schema](#executable-schema) to execute more complex queries.
+⚠ Models are not designed to support querying relationships **use a [session](#creating-a-session) for this**. This library is designed to place a `CRUD` api over nodes, with the exemption of [creating relationships](#creating-relationships). You can also create an [Executable schema](#executable-schema) to execute more complex queries.
 
 ### Creating a session
 ```js
