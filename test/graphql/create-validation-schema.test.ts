@@ -1,8 +1,14 @@
 import { expect } from "chai";
 import { describe } from "mocha";
 import createValidationSchema from "../../src/graphql/create-validation-schema";
+import getRelationshipDirective from "../../src/graphql/get-relationship-directive";
 import { Runtime } from "../../src/types";
-import { parse, ObjectTypeDefinitionNode, printSchema } from "graphql";
+import {
+  parse,
+  ObjectTypeDefinitionNode,
+  printSchema,
+  FieldDefinitionNode,
+} from "graphql";
 
 describe("graphql/createValidationSchema", () => {
   describe("validation", () => {
@@ -20,7 +26,7 @@ describe("graphql/createValidationSchema", () => {
           }
       `);
 
-      const postNode = postDocument.definitions[0];
+      const postNode = postDocument.definitions[0] as ObjectTypeDefinitionNode;
 
       const userDocument = parse(`
           input UserProperties {
@@ -37,13 +43,51 @@ describe("graphql/createValidationSchema", () => {
 
       const userNode = userDocument.definitions.find(
         (x: ObjectTypeDefinitionNode) => x.name.value === "User"
-      );
+      ) as ObjectTypeDefinitionNode;
+
+      const userFields = userNode.fields.reduce(
+        (res, field) => {
+          const relationshipDirective = getRelationshipDirective(field);
+
+          if (relationshipDirective) {
+            res.relations.push(field);
+          } else {
+            res.fields.push(field);
+          }
+
+          return res;
+        },
+        { relations: [], fields: [] }
+      ) as {
+        relations: FieldDefinitionNode[];
+        fields: FieldDefinitionNode[];
+      };
+
+      const postFields = postNode.fields.reduce(
+        (res, field) => {
+          const relationshipDirective = getRelationshipDirective(field);
+
+          if (relationshipDirective) {
+            res.relations.push(field);
+          } else {
+            res.fields.push(field);
+          }
+
+          return res;
+        },
+        { relations: [], fields: [] }
+      ) as {
+        relations: FieldDefinitionNode[];
+        fields: FieldDefinitionNode[];
+      };
 
       const user = {
         name: "User",
         node: userNode,
         document: userDocument,
         inputs: {},
+        fields: userFields.fields,
+        relations: userFields.relations,
       };
 
       const post = {
@@ -51,6 +95,8 @@ describe("graphql/createValidationSchema", () => {
         node: postNode,
         document: postDocument,
         inputs: {},
+        fields: postFields.fields,
+        relations: postFields.relations,
       };
 
       // @ts-ignore
