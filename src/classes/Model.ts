@@ -3,6 +3,7 @@ import {
   ObjectTypeDefinitionNode,
   InputObjectTypeDefinitionNode,
   graphql,
+  FieldDefinitionNode,
 } from "graphql";
 import {
   SessionOptions,
@@ -11,16 +12,19 @@ import {
   CreateOneInput,
   ModelInput,
 } from "../types";
+import * as neo4j from "../neo4j";
 
 export default class Model<T = any> {
   public name: string;
   public document: DocumentNode;
   public sessionOptions?: SessionOptions;
   public node: ObjectTypeDefinitionNode;
+  public fields: FieldDefinitionNode[];
+  public relations: FieldDefinitionNode[];
   public properties?: InputObjectTypeDefinitionNode;
   public resolvers?: Resolvers;
   public selectionSet?: string;
-  private runtime: Runtime;
+  public runtime: Runtime;
 
   constructor(input: ModelInput) {
     this.name = input.name;
@@ -30,6 +34,8 @@ export default class Model<T = any> {
     this.properties = input.properties;
     this.runtime = input.runtime;
     this.resolvers = input.resolvers;
+    this.relations = input.relations;
+    this.fields = input.fields;
   }
 
   async createOne(input: CreateOneInput): Promise<void> {
@@ -48,6 +54,8 @@ export default class Model<T = any> {
     if (errors) {
       throw new Error(errors[0].message);
     }
+
+    await neo4j.createOne({ model: this, input });
   }
 
   createMany(): void {

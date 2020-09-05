@@ -19,8 +19,6 @@ import {
 import { makeExecutableSchema } from "@graphql-tools/schema";
 
 function createValidationSchema(input: { runtime: Runtime }): GraphQLSchema {
-  const modelNames = input.runtime.models.map((x) => x.name);
-
   function createNode(model: Model): ObjectTypeComposer {
     let node: ObjectTypeComposer;
 
@@ -38,25 +36,7 @@ function createValidationSchema(input: { runtime: Runtime }): GraphQLSchema {
       );
     }
 
-    const { relations, fields } = model.node.fields.reduce(
-      (res, field) => {
-        const { name: typeName } = getFieldTypeName(field);
-
-        if (typeName && modelNames.includes(typeName)) {
-          res.relations.push(field);
-        } else {
-          res.fields.push(field);
-        }
-
-        return res;
-      },
-      { relations: [], fields: [] }
-    ) as {
-      relations: FieldDefinitionNode[];
-      fields: FieldDefinitionNode[];
-    };
-
-    const composeFields = fields.reduce((res, v) => {
+    const composeFields = model.fields.reduce((res, v) => {
       const name = v.name?.value;
       const type = node.getField(name).type;
 
@@ -68,7 +48,7 @@ function createValidationSchema(input: { runtime: Runtime }): GraphQLSchema {
       };
     }, {});
 
-    const composeRelationFields = relations.reduce((res, f) => {
+    const composeRelationFields = model.relations.reduce((res, f) => {
       const name = f.name.value;
       const type = getFieldTypeName(f).prettyBy(`${model.name}_${name}_Input`);
 
@@ -103,7 +83,7 @@ function createValidationSchema(input: { runtime: Runtime }): GraphQLSchema {
       });
     }
 
-    relations.forEach((field) => {
+    model.relations.forEach((field) => {
       const referenceModel = input.runtime.models.find(
         (x) => x.name === getFieldTypeName(field).name
       );
@@ -113,12 +93,6 @@ function createValidationSchema(input: { runtime: Runtime }): GraphQLSchema {
       node.removeField(field.name.value);
 
       const directive = getRelationshipDirective(field);
-
-      if (!directive) {
-        throw new Error(
-          `${model.name}.${field.name.value} @Relationship required`
-        );
-      }
 
       const propertiesArgument = directive.arguments.find(
         (x) => x.name.value === "properties"
@@ -188,26 +162,16 @@ function createValidationSchema(input: { runtime: Runtime }): GraphQLSchema {
           input: `${model.name}_Input!`,
         },
       },
-      [`${model.name}CreateManyInput`]: {
-        type: "Boolean",
-        resolve: () => true,
-        args: {
-          input: `[${model.name}_Input!]!`,
-        },
-      },
     });
 
     schemaComposer.Query.addFields({
-      [`${model.name}FindOneInput`]: {
-        type: `${model.name}`,
+      // REMOVE
+      [`${model.name}`]: {
+        type: "Boolean",
         resolve: () => true,
         args: {
-          input: `${model.name}_Find_Input!`,
+          input: `${model.name}_Input!`,
         },
-      },
-      [`${model.name}FindOneOutput`]: {
-        type: `${model.name}`,
-        resolve: (root, args, ctx) => ctx.input,
       },
     });
 

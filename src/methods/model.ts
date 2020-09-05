@@ -6,7 +6,9 @@ import {
   getValidationDirective,
   getInputByName,
   removeValidationDirective,
+  getRelationshipDirective,
 } from "../graphql";
+import { FieldDefinitionNode } from "graphql";
 
 function model<T = any>(runtime: Runtime): CreateOrGetModel {
   return (name, options) => {
@@ -56,10 +58,10 @@ function model<T = any>(runtime: Runtime): CreateOrGetModel {
 
     input.node = node;
 
-    const directive = getValidationDirective(node);
+    const validationDirective = getValidationDirective(node);
 
-    if (directive) {
-      const propertiesArg = directive.arguments.find(
+    if (validationDirective) {
+      const propertiesArg = validationDirective.arguments.find(
         (x) => x.name.value === "properties"
       );
 
@@ -78,6 +80,27 @@ function model<T = any>(runtime: Runtime): CreateOrGetModel {
 
       input.properties = propertiesInput;
     }
+
+    const { relations, fields } = node.fields.reduce(
+      (res, field) => {
+        const relationshipDirective = getRelationshipDirective(field);
+
+        if (relationshipDirective) {
+          res.relations.push(field);
+        } else {
+          res.fields.push(field);
+        }
+
+        return res;
+      },
+      { relations: [], fields: [] }
+    ) as {
+      relations: FieldDefinitionNode[];
+      fields: FieldDefinitionNode[];
+    };
+
+    input.relations = relations;
+    input.fields = fields;
 
     if (options.resolvers) {
       input.resolvers = options.resolvers;

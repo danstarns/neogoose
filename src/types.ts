@@ -4,6 +4,7 @@ import {
   GraphQLSchema,
   ObjectTypeDefinitionNode,
   InputObjectTypeDefinitionNode,
+  FieldDefinitionNode,
 } from "graphql";
 import { SessionMode, Driver } from "neo4j-driver";
 import { IResolvers } from "@graphql-tools/utils";
@@ -64,6 +65,8 @@ export interface ModelInput {
   runtime: Runtime;
   connection?: Connection;
   resolvers?: Resolvers;
+  fields: FieldDefinitionNode[];
+  relations: FieldDefinitionNode[];
 }
 
 /**
