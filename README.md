@@ -161,11 +161,6 @@ const update = {
     name: "naD"
 };
 
-await User.updateOne(
-    query,
-    update
-);
-
 await User.updateMany(query, update);
 
 const user = await User.updateOne(
@@ -176,6 +171,39 @@ const user = await User.updateOne(
 ```
 
 ⚠ Currently there is no support for updating relationships.
+
+#### Using $set
+> Regular update will replace all properties use `$set` to `+=` properties on the node
+
+```js
+const query = {
+    name: "Dan",
+};
+
+const update = {
+    repo: "neogoose"
+};
+
+const user = await User.updateOne(
+    query,
+    { $set: update },
+    { return: true }
+);
+
+user.name // Dan
+user.repo // neogoose
+```
+
+#### Deleting propeties
+> $set to `null`
+
+```js
+const user = await User.updateOne(
+    query,
+    { $set: { beerEmpty: true }, // 😲
+    { return: true }
+);
+```
 
 ### Delete 
 1. `deleteOne`
