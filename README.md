@@ -294,9 +294,10 @@ const Comment = neogoose.model("Comment", {
 
 const Post = neogoose.model("Post", {
     typeDefs: `
-        input PostInput {
+        input PostInput { ⚠ don't specify 'comments' field here.
           title: String!
         }   
+
         type Post @Validation(properties: PostInput){
           title: String!
           comments: [Comment] @Relationship(
@@ -309,7 +310,7 @@ const Post = neogoose.model("Post", {
 
 const User = neogoose.model("User", {
     typeDefs: `
-        input UserInput {
+        input UserInput { ⚠ don't specify 'posts' field here.
             name: String!
         }
 
@@ -363,11 +364,7 @@ const User = neogoose.model(
                 date: String!
             }
 
-            input UserInput { # ⚠ don't specify 'posts' field here.
-                name: String!
-            }
-
-            type User @Validation(properties: UserInput) {
+            type User {
                 name: String!
                 posts: [Post]! @Relationship(
                     properties: UserPostProperties,
@@ -392,5 +389,3 @@ const user = await User.create({
     ]
 });
 ```
-
-⚠ Notice you would not specify `posts` as a `Field` on `input` `UserInput`
