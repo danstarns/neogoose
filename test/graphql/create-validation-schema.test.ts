@@ -24,9 +24,14 @@ describe("graphql/createValidationSchema", () => {
 
       _model("User", {
         typeDefs: `   
-          input UserProperties {
+          input UserPostProperties {
             name: String! @constraint(minLength: 5, format: "uid")
             abba: Boolean!
+          }
+
+          input UserProperties {
+            name: String! @constraint(minLength: 5, format: "uid")
+            date: DateTime!
           }
 
           scalar DateTime
@@ -35,12 +40,13 @@ describe("graphql/createValidationSchema", () => {
             type: String
           }
 
-          type User {
-            name: String!
-            posts: [Post]! @Relationship(properties: UserProperties)
-            mates: [User!] @Relationship(properties: UserProperties)
+          type User @Validation(properties: UserProperties) {
+            name: String! @id
+            posts: [Post]! @Relationship(properties: UserPostProperties)
+            mates: [User!] @Relationship(properties: UserPostProperties)
             nested: Nested
             date: DateTime
+            test: [Post] @cypher
           }
         `,
       });
@@ -55,6 +61,14 @@ describe("graphql/createValidationSchema", () => {
       });
 
       const schema = createValidationSchema({ runtime });
+
+      const printed = printSchema(schema);
+
+      expect(printed).to.not.contain("@id");
+      expect(printed).to.not.contain("@cypher");
+      expect(printed).to.not.contain("@Relationship");
+      expect(printed).to.not.contain("@cypher");
+      expect(printed).to.not.contain("@Validation");
 
       console.log(printSchema(schema));
     });
