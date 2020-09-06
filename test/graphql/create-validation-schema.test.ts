@@ -70,7 +70,18 @@ describe("graphql/createValidationSchema", () => {
       expect(printed).to.not.contain("@cypher");
       expect(printed).to.not.contain("@Validation");
 
-      console.log(printSchema(schema));
+      expect(printed).to.include("input User_posts_Properties");
+      expect(printed).to.include("input User_posts_Input");
+      expect(printed).to.include("input User_mates_Properties");
+      expect(printed).to.include("input User_mates_Input");
+      expect(printed).to.include("input User_Input");
+      expect(printed).to.include("type User");
+      expect(printed).to.include("input Post_users_Input");
+      expect(printed).to.include("input Post_Input");
+      expect(printed).to.include("type Post");
+      expect(printed).to.include("type Nested");
+      expect(printed).to.include("scalar DateTime");
+      expect(printed).to.include("directive @constraint");
     });
   });
 });
