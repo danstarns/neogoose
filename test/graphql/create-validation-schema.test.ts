@@ -29,7 +29,9 @@ describe("graphql/createValidationSchema", () => {
             abba: Boolean!
           }
 
-          type Poo {
+          scalar DateTime
+
+          type Nested {
             type: String
           }
 
@@ -37,7 +39,8 @@ describe("graphql/createValidationSchema", () => {
             name: String!
             posts: [Post]! @Relationship(properties: UserProperties)
             mates: [User!] @Relationship(properties: UserProperties)
-            poo: Poo
+            nested: Nested
+            date: DateTime
           }
         `,
       });
