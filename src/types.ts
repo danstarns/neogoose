@@ -67,6 +67,7 @@ export interface ModelInput {
   resolvers?: Resolvers;
   fields: FieldDefinitionNode[];
   relations: FieldDefinitionNode[];
+  cyphers: FieldDefinitionNode[];
 }
 
 /**

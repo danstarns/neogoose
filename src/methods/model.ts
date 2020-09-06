@@ -7,6 +7,7 @@ import {
   getInputByName,
   removeValidationDirective,
   getRelationshipDirective,
+  getNeo4jCypherDirective,
 } from "../graphql";
 import { FieldDefinitionNode } from "graphql";
 
@@ -81,26 +82,31 @@ function model<T = any>(runtime: Runtime): CreateOrGetModel {
       input.properties = propertiesInput;
     }
 
-    const { relations, fields } = node.fields.reduce(
+    const { relations, fields, cyphers } = node.fields.reduce(
       (res, field) => {
         const relationshipDirective = getRelationshipDirective(field);
+        const cypherDirective = getNeo4jCypherDirective(field);
 
         if (relationshipDirective) {
           res.relations.push(field);
+        } else if (cypherDirective) {
+          res.cyphers.push(field);
         } else {
           res.fields.push(field);
         }
 
         return res;
       },
-      { relations: [], fields: [] }
+      { relations: [], fields: [], cyphers: [] }
     ) as {
       relations: FieldDefinitionNode[];
       fields: FieldDefinitionNode[];
+      cyphers: FieldDefinitionNode[];
     };
 
     input.relations = relations;
     input.fields = fields;
+    input.cyphers = cyphers;
 
     if (options.resolvers) {
       input.resolvers = options.resolvers;

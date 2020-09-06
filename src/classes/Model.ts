@@ -21,6 +21,7 @@ export default class Model<T = any> {
   public node: ObjectTypeDefinitionNode;
   public fields: FieldDefinitionNode[];
   public relations: FieldDefinitionNode[];
+  public cyphers: FieldDefinitionNode[];
   public properties?: InputObjectTypeDefinitionNode;
   public resolvers?: Resolvers;
   public selectionSet?: string;
@@ -35,6 +36,7 @@ export default class Model<T = any> {
     this.runtime = input.runtime;
     this.resolvers = input.resolvers;
     this.relations = input.relations;
+    this.cyphers = input.cyphers;
     this.fields = input.fields;
   }
 
