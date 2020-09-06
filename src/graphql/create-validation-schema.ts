@@ -1,16 +1,12 @@
-import { GraphQLSchema, FieldDefinitionNode, print } from "graphql";
-import {
-  getInputByName,
-  removeRelationshipDirective,
-  getFieldTypeName,
-} from "../graphql";
+import { GraphQLSchema, print } from "graphql";
+import { getInputByName, getFieldTypeName } from "../graphql";
 import { Runtime } from "../types";
 import { Model } from "../classes";
 import getRelationshipDirective from "./get-relationship-directive";
 import {
-  schemaComposer,
   ObjectTypeComposer,
   ComposeOutputType,
+  SchemaComposer,
 } from "graphql-compose";
 import {
   constraintDirective,
@@ -19,19 +15,27 @@ import {
 import { makeExecutableSchema } from "@graphql-tools/schema";
 
 function createValidationSchema(input: { runtime: Runtime }): GraphQLSchema {
+  const compose = new SchemaComposer();
+
   function createNode(model: Model): ObjectTypeComposer {
     let node: ObjectTypeComposer;
 
     try {
-      node = schemaComposer.getOTC(model.name);
+      node = compose.getOTC(model.name);
 
       return node;
     } catch (error) {
       // 404
-      node = schemaComposer.createObjectTC(
+      node = compose.createObjectTC(
         print({
           kind: "Document",
-          definitions: [removeRelationshipDirective(model.node)],
+          definitions: [
+            {
+              kind: "ObjectTypeDefinition",
+              name: { kind: "Name", value: model.name },
+              fields: model.fields,
+            },
+          ],
         })
       );
     }
@@ -68,13 +72,13 @@ function createValidationSchema(input: { runtime: Runtime }): GraphQLSchema {
         definitions: [model.properties],
       });
 
-      const inp = schemaComposer.createInputTC(
+      const inp = compose.createInputTC(
         typeDefs.replace(name, `${model.name}_Input`)
       );
 
       inp.addFields(composeRelationFields);
     } else {
-      schemaComposer.createInputTC({
+      compose.createInputTC({
         name: `${model.name}_Input`,
         fields: {
           ...composeFields,
@@ -118,11 +122,11 @@ function createValidationSchema(input: { runtime: Runtime }): GraphQLSchema {
           definitions: [propertiesInput],
         });
 
-        schemaComposer.createInputTC(
+        compose.createInputTC(
           typeDefs.replace(name, `${model.name}_${field.name.value}_Properties`)
         );
 
-        schemaComposer.createInputTC({
+        compose.createInputTC({
           name: `${model.name}_${field.name.value}_Input`,
           fields: {
             properties: {
@@ -132,7 +136,7 @@ function createValidationSchema(input: { runtime: Runtime }): GraphQLSchema {
           },
         });
       } else {
-        schemaComposer.createInputTC({
+        compose.createInputTC({
           name: `${model.name}_${field.name.value}_Input`,
           fields: {
             node: {
@@ -143,7 +147,7 @@ function createValidationSchema(input: { runtime: Runtime }): GraphQLSchema {
       }
     });
 
-    schemaComposer.createInputTC({
+    compose.createInputTC({
       name: `${model.name}_Find_Input`,
       fields: Object.entries(composeFields).reduce(
         (res, [k, v]: [string, { type: ComposeOutputType<any> }]) => ({
@@ -154,7 +158,7 @@ function createValidationSchema(input: { runtime: Runtime }): GraphQLSchema {
       ),
     });
 
-    schemaComposer.Mutation.addFields({
+    compose.Mutation.addFields({
       [`${model.name}CreateOneInput`]: {
         type: "Boolean",
         resolve: () => true,
@@ -164,10 +168,10 @@ function createValidationSchema(input: { runtime: Runtime }): GraphQLSchema {
       },
     });
 
-    schemaComposer.Query.addFields({
-      // REMOVE
+    compose.Query.addFields({
+      // TODO
       [`${model.name}`]: {
-        type: "Boolean",
+        type: model.name,
         resolve: () => true,
         args: {
           input: `${model.name}_Input!`,
@@ -180,8 +184,8 @@ function createValidationSchema(input: { runtime: Runtime }): GraphQLSchema {
 
   input.runtime.models.forEach(createNode);
 
-  const typeDefs = schemaComposer.toSDL();
-  const resolvers = schemaComposer.getResolveMethods();
+  const typeDefs = compose.toSDL();
+  const resolvers = compose.getResolveMethods();
 
   const schema = makeExecutableSchema({
     typeDefs: [constraintDirectiveTypeDefs, typeDefs],
