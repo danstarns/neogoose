@@ -23,4 +23,5 @@ export {
   getFieldTypeName,
   createNeoGQLSchema,
   getNeo4jCypherDirective,
+  removeNeo4jGQLFieldDirectives,
 };
