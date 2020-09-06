@@ -8,6 +8,7 @@ import {
 } from "graphql";
 import { SessionMode, Driver } from "neo4j-driver";
 import { IResolvers } from "@graphql-tools/utils";
+import { ResolversDefinition } from "@graphql-tools/merge";
 import { AuthToken, Config } from "neo4j-driver";
 
 export type TypeDefsUnion = string | DocumentNode;
@@ -84,6 +85,11 @@ export interface SessionOptions {
   bookmarks?: string | string[];
   fetchSize?: number;
   database?: string;
+}
+
+export interface AugmentOptions<T = any> {
+  typeDefs?: string;
+  resolvers?: ResolversDefinition<T>;
 }
 
 export type Connect = (

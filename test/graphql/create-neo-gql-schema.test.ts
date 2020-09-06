@@ -54,7 +54,7 @@ describe("graphql/createNeoGQLSchema", () => {
         `,
       });
 
-      const _createNeoGQLSchema = createNeoGQLSchema({ runtime });
+      const _createNeoGQLSchema = createNeoGQLSchema({ runtime, options: {} });
 
       const printed = printSchema(_createNeoGQLSchema);
 

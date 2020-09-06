@@ -6,9 +6,9 @@ import {
   print,
   DocumentNode,
 } from "graphql";
-import { Runtime } from "../types";
+import { Runtime, AugmentOptions } from "../types";
 import { makeAugmentedSchema } from "neo4j-graphql-js";
-import { mergeResolvers } from "@graphql-tools/merge";
+import { mergeResolvers, mergeTypeDefs } from "@graphql-tools/merge";
 
 function transformDirectiveToNeo4jGQL(directive: DirectiveNode): DirectiveNode {
   if (directive.name.value === "Relationship") {
@@ -56,7 +56,10 @@ function transformDefinitionToNeo4jGQL(
   };
 }
 
-function createNeoGQLSchema(input: { runtime: Runtime }): GraphQLSchema {
+function createNeoGQLSchema(input: {
+  runtime: Runtime;
+  options: AugmentOptions;
+}): GraphQLSchema {
   const document: DocumentNode = { kind: "Document", definitions: [] };
   const resolvers = [];
 
@@ -85,8 +88,14 @@ function createNeoGQLSchema(input: { runtime: Runtime }): GraphQLSchema {
   const typeDefs = print(document);
 
   const schema = makeAugmentedSchema({
-    typeDefs,
-    resolvers: mergeResolvers(resolvers),
+    typeDefs: mergeTypeDefs([
+      typeDefs,
+      ...(input.options.typeDefs ? [input.options.typeDefs] : []),
+    ]),
+    resolvers: mergeResolvers([
+      ...resolvers,
+      ...(input.options.resolvers ? [input.options.resolvers] : []),
+    ]),
   });
 
   return schema;
