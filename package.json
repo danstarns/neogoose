@@ -51,6 +51,7 @@
     "@graphql-tools/schema": "^6.1.0",
     "graphql-compose": "^7.20.1",
     "graphql-constraint-directive": "^2.1.0",
+    "neo4j-graphql-js": "^2.16.1",
     "randomstring": "^1.1.5"
   }
 }
