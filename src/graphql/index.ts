@@ -9,6 +9,7 @@ import removeRelationshipDirective from "./remove-relationship-directive";
 import getFieldTypeName from "./get-field-type-name";
 import createNeoGQLSchema from "./create-neo-gql-schema";
 import getNeo4jCypherDirective from "./get-neo4j-gql-cypher-directive";
+import removeNeo4jGQLFieldDirectives from "./remove-neo4j-gql-field-directives";
 
 export {
   getNodeByName,

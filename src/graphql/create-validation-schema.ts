@@ -9,6 +9,7 @@ import {
   constraintDirectiveTypeDefs,
 } from "graphql-constraint-directive";
 import { makeExecutableSchema } from "@graphql-tools/schema";
+import removeNeo4jGQLFieldDirectives from "./remove-neo4j-gql-field-directives";
 
 function createValidationSchema(input: { runtime: Runtime }): GraphQLSchema {
   const compose = new SchemaComposer();
@@ -18,19 +19,30 @@ function createValidationSchema(input: { runtime: Runtime }): GraphQLSchema {
 
     const otherTypes = print({
       kind: model.document.kind,
-      definitions: model.document.definitions.filter((x) => {
-        switch (x.kind) {
-          case "ObjectTypeDefinition":
-            if (x.name.value === model.name) {
-              return false;
-            } else {
-              return true;
-            }
+      definitions: model.document.definitions
+        .map((x) => {
+          if (x.kind === "ObjectTypeDefinition") {
+            return {
+              ...x,
+              fields: x.fields.map(removeNeo4jGQLFieldDirectives),
+            };
+          }
 
-          default:
-            return true;
-        }
-      }),
+          return x;
+        })
+        .filter((x) => {
+          switch (x.kind) {
+            case "ObjectTypeDefinition":
+              if (x.name.value === model.name) {
+                return false;
+              } else {
+                return true;
+              }
+
+            default:
+              return true;
+          }
+        }),
     });
 
     /*
@@ -53,7 +65,9 @@ function createValidationSchema(input: { runtime: Runtime }): GraphQLSchema {
             {
               kind: "ObjectTypeDefinition",
               name: { kind: "Name", value: model.name },
-              fields: [...model.fields, ...model.nested],
+              fields: [...model.fields, ...model.nested].map(
+                removeNeo4jGQLFieldDirectives
+              ),
             },
           ],
         })
