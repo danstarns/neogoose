@@ -5,11 +5,11 @@ import {
   getNodeByName,
   getValidationDirective,
   getInputByName,
-  removeValidationDirective,
   getRelationshipDirective,
   getNeo4jCypherDirective,
+  getFieldTypeName,
 } from "../graphql";
-import { FieldDefinitionNode } from "graphql";
+import { FieldDefinitionNode, ObjectTypeDefinitionNode } from "graphql";
 
 function model<T = any>(runtime: Runtime): CreateOrGetModel {
   return (name, options) => {
@@ -35,13 +35,16 @@ function model<T = any>(runtime: Runtime): CreateOrGetModel {
       // @ts-ignore
       inputs: {},
       runtime,
+      typeDefs: options.typeDefs,
     };
 
     if (options.sessionOptions) {
       input.sessionOptions = options.sessionOptions;
     }
 
-    let document = parseTypeDefs(options.typeDefs);
+    const document = parseTypeDefs(options.typeDefs);
+
+    input.document = document;
 
     ["Mutation", "Query", "Subscription"].forEach((kind) => {
       const node = getNodeByName({ document, name: kind });
@@ -82,31 +85,42 @@ function model<T = any>(runtime: Runtime): CreateOrGetModel {
       input.properties = propertiesInput;
     }
 
-    const { relations, fields, cyphers } = node.fields.reduce(
+    const documentReferenceNames = document.definitions
+      .filter((x) => Boolean(x.kind === "ObjectTypeDefinition"))
+      .map((x: ObjectTypeDefinitionNode) => x.name.value);
+
+    const { relations, fields, cyphers, nested } = node.fields.reduce(
       (res, field) => {
         const relationshipDirective = getRelationshipDirective(field);
         const cypherDirective = getNeo4jCypherDirective(field);
+        const isNested = documentReferenceNames.includes(
+          getFieldTypeName(field).name
+        );
 
         if (relationshipDirective) {
           res.relations.push(field);
         } else if (cypherDirective) {
           res.cyphers.push(field);
+        } else if (isNested) {
+          res.nested.push(field);
         } else {
           res.fields.push(field);
         }
 
         return res;
       },
-      { relations: [], fields: [], cyphers: [] }
+      { relations: [], fields: [], cyphers: [], nested: [] }
     ) as {
       relations: FieldDefinitionNode[];
       fields: FieldDefinitionNode[];
       cyphers: FieldDefinitionNode[];
+      nested: FieldDefinitionNode[];
     };
 
     input.relations = relations;
     input.fields = fields;
     input.cyphers = cyphers;
+    input.nested = nested;
 
     if (options.resolvers) {
       input.resolvers = options.resolvers;
@@ -119,10 +133,6 @@ function model<T = any>(runtime: Runtime): CreateOrGetModel {
 
       input.connection = options.connection;
     }
-
-    document = removeValidationDirective(document);
-
-    input.document = document;
 
     const model = new Model<T>(input);
 

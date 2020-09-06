@@ -68,6 +68,7 @@ export interface ModelInput {
   fields: FieldDefinitionNode[];
   relations: FieldDefinitionNode[];
   cyphers: FieldDefinitionNode[];
+  nested: FieldDefinitionNode[];
 }
 
 /**

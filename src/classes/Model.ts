@@ -22,6 +22,7 @@ export default class Model<T = any> {
   public fields: FieldDefinitionNode[];
   public relations: FieldDefinitionNode[];
   public cyphers: FieldDefinitionNode[];
+  public nested: FieldDefinitionNode[];
   public properties?: InputObjectTypeDefinitionNode;
   public resolvers?: Resolvers;
   public selectionSet?: string;
@@ -38,6 +39,7 @@ export default class Model<T = any> {
     this.relations = input.relations;
     this.cyphers = input.cyphers;
     this.fields = input.fields;
+    this.nested = input.nested;
   }
 
   async createOne(input: CreateOneInput): Promise<void> {

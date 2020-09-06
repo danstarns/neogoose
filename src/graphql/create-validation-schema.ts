@@ -3,11 +3,7 @@ import { getInputByName, getFieldTypeName } from "../graphql";
 import { Runtime } from "../types";
 import { Model } from "../classes";
 import getRelationshipDirective from "./get-relationship-directive";
-import {
-  ObjectTypeComposer,
-  ComposeOutputType,
-  SchemaComposer,
-} from "graphql-compose";
+import { ObjectTypeComposer, SchemaComposer } from "graphql-compose";
 import {
   constraintDirective,
   constraintDirectiveTypeDefs,
@@ -19,6 +15,30 @@ function createValidationSchema(input: { runtime: Runtime }): GraphQLSchema {
 
   function createNode(model: Model): ObjectTypeComposer {
     let node: ObjectTypeComposer;
+
+    const otherTypes = print({
+      kind: model.document.kind,
+      definitions: model.document.definitions.filter((x) => {
+        switch (x.kind) {
+          case "ObjectTypeDefinition":
+            if (x.name.value === model.name) {
+              return false;
+            } else {
+              return true;
+            }
+
+          default:
+            return true;
+        }
+      }),
+    });
+
+    /*
+     * Without fix 'Syntax Error: Unexpected <EOF> occurs'...
+     * so strange I know.
+     */
+    const fix = "type Query {test: Boolean}";
+    compose.addTypeDefs(otherTypes + fix);
 
     try {
       node = compose.getOTC(model.name);
@@ -33,7 +53,7 @@ function createValidationSchema(input: { runtime: Runtime }): GraphQLSchema {
             {
               kind: "ObjectTypeDefinition",
               name: { kind: "Name", value: model.name },
-              fields: model.fields,
+              fields: [...model.fields, ...model.nested],
             },
           ],
         })
@@ -94,8 +114,6 @@ function createValidationSchema(input: { runtime: Runtime }): GraphQLSchema {
 
       createNode(referenceModel);
 
-      node.removeField(field.name.value);
-
       const directive = getRelationshipDirective(field);
 
       const propertiesArgument = directive.arguments.find(
@@ -147,16 +165,16 @@ function createValidationSchema(input: { runtime: Runtime }): GraphQLSchema {
       }
     });
 
-    compose.createInputTC({
-      name: `${model.name}_Find_Input`,
-      fields: Object.entries(composeFields).reduce(
-        (res, [k, v]: [string, { type: ComposeOutputType<any> }]) => ({
-          ...res,
-          [k]: { type: v.type.getTypeName().replace(/!/g, "") },
-        }),
-        {}
-      ),
-    });
+    // compose.createInputTC({
+    //   name: `${model.name}_Find_Input`,
+    //   fields: Object.entries(composeFields).reduce(
+    //     (res, [k, v]: [string, { type: ComposeOutputType<any> }]) => ({
+    //       ...res,
+    //       [k]: { type: v.type.getTypeName().replace(/!/g, "") },
+    //     }),
+    //     {}
+    //   ),
+    // });
 
     compose.Mutation.addFields({
       [`${model.name}CreateOneInput`]: {
@@ -173,9 +191,6 @@ function createValidationSchema(input: { runtime: Runtime }): GraphQLSchema {
       [`${model.name}`]: {
         type: model.name,
         resolve: () => true,
-        args: {
-          input: `${model.name}_Input!`,
-        },
       },
     });
 
