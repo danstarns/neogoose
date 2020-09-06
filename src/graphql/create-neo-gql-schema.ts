@@ -46,7 +46,9 @@ function transformDefinitionToNeo4jGQL(
     ...definition,
     fields: definition.fields.map((field) => ({
       ...field,
-      directives: field.directives.map(transformDirectiveToNeo4jGQL),
+      directives: field.directives
+        .map(transformDirectiveToNeo4jGQL)
+        .filter((x) => x.name.value !== "constraint"),
     })),
     directives: definition.directives.filter(
       (directive) => directive.name.value !== "Validation"
