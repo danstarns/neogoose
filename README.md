@@ -326,6 +326,7 @@ const AUTO_SELECTION_SET = `
         id
         name
         email
+        nested # ⚠ ERROR
     }
 `
 ```
