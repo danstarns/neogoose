@@ -96,10 +96,10 @@ const schema = neogoose.makeAugmentedSchema();
 ⚠ Transforms made before calling [makeAugmentedSchema](https://grandstack.io/docs/neo4j-graphql-js-quickstart)
 
 1. `constraint` directives removed
-2. `Relationship` directives converted to `relation`
+2. `Relationship` directives converted to `relation`, `label` argument converted to `name`
 3. `Validation` directives removed
-4. `@cypher` directives, along with each field, removed
-4. All other schema directives [here](https://grandstack.io/docs/graphql-schema-directives) are ignored in `neogoose` land
+
+⚠ All other schema directives [here](https://grandstack.io/docs/graphql-schema-directives) are ignored in `neogoose` land
 
 ### Query
 Used with;
