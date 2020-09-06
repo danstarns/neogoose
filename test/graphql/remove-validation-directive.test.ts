@@ -15,9 +15,9 @@ describe("graphql/removeValidationDirective", () => {
 
       const document = parse(typeDefs);
 
-      removeValidationDirective(document);
+      const removed = removeValidationDirective(document);
 
-      expect(print(document)).to.not.include("@Validation");
+      expect(print(removed)).to.not.include("@Validation");
     });
   });
 });
