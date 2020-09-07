@@ -13,6 +13,12 @@ module.exports = {
     "@typescript-eslint/no-explicit-any": 0,
     "@typescript-eslint/ban-ts-comment": 0,
     "@typescript-eslint/explicit-function-return-type": 0,
+    "@typescript-eslint/no-this-alias": [
+      "error",
+      {
+        allowedNames: ["model"],
+      },
+    ],
     "prettier/prettier": [
       "error",
       {

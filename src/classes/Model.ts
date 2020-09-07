@@ -16,6 +16,24 @@ import {
 } from "../types";
 import * as neo4j from "../neo4j";
 
+function Connected(
+  target: any,
+  propertyKey: string,
+  descriptor: PropertyDescriptor
+) {
+  const originalMethod = descriptor.value;
+
+  descriptor.value = function (...args: any[]) {
+    const model: Model = this;
+
+    if (!model.runtime.connection) {
+      throw new Error("Not connected");
+    }
+
+    return originalMethod.apply(this, args);
+  };
+}
+
 export default class Model<T = any> {
   public name: string;
   public document: DocumentNode;
@@ -46,6 +64,7 @@ export default class Model<T = any> {
   }
 
   // TODO not working
+  @Connected
   async createOne(input: CreateOneInput): Promise<void> {
     const { errors } = await graphql({
       schema: this.runtime.validationSchema,
@@ -66,10 +85,12 @@ export default class Model<T = any> {
     await neo4j.createOne({ model: this, input });
   }
 
+  @Connected
   createMany(): void {
     // TODO
   }
 
+  @Connected
   async findOne(input: FindOneInput, options: FindOneOptions = {}): Promise<T> {
     if (!input) {
       throw new Error("input required");
@@ -119,22 +140,27 @@ export default class Model<T = any> {
     );
   }
 
+  @Connected
   findMany(): void {
     // TODO
   }
 
+  @Connected
   updateOne(): void {
     // TODO
   }
 
+  @Connected
   updateMany(): void {
     // TODO
   }
 
+  @Connected
   deleteOne(): void {
     // TODO
   }
 
+  @Connected
   deleteMany(): void {
     // TODO
   }
