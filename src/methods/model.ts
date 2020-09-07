@@ -125,6 +125,10 @@ function model<T = any>(runtime: Runtime): CreateOrGetModel {
 
     selectionSet += "}";
 
+    if (options.selectionSet) {
+      selectionSet = options.selectionSet;
+    }
+
     input.selectionSet = selectionSet;
     input.relations = relations;
     input.fields = fields;
