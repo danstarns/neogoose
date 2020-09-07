@@ -125,4 +125,12 @@ export interface FindOneOptions {
   selectionSet?: string;
 }
 
+export type FindManyInput = Query;
+
+export interface FindManyOptions {
+  selectionSet?: string;
+  limit?: number;
+  skip?: number;
+}
+
 export { Connection, Model };

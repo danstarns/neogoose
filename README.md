@@ -102,7 +102,7 @@ const schema = neogoose.makeAugmentedSchema();
 ⚠ All other schema directives [here](https://grandstack.io/docs/graphql-schema-directives) are ignored in `neogoose` land
 
 ### Query
-Used with;
+Used with
 1. `findOne`
 2. `findMany`
 3. `updateOne`
@@ -117,6 +117,16 @@ const dan = await User.findOne({
 ```
 
 ⚠ Currently there is **only support** for querying simple key/value equality.
+
+### Skip/Limit
+Used with
+1. `findMany`
+2. `updateMany`
+3. `deleteMany`
+
+```js
+const paginatedUsers = await User.findMany(query, { skip: 30, limit: 10 });
+```
 
 ### Creating
 1. `create`

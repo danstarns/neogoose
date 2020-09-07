@@ -219,6 +219,20 @@ function createValidationSchema(input: { runtime: Runtime }): GraphQLSchema {
       },
     });
 
+    compose.Query.addFields({
+      [`${model.name}FindManyInput`]: {
+        type: "Boolean",
+        resolve: () => true,
+        args: {
+          input: `${model.name}_Find_Input`,
+        },
+      },
+      [`${model.name}FindManyOutput`]: {
+        type: `[${model.name}]!`,
+        resolve: (root, args, ctx: any) => ctx.input,
+      },
+    });
+
     return node;
   }
 

@@ -13,6 +13,8 @@ import {
   ModelInput,
   FindOneInput,
   FindOneOptions,
+  FindManyInput,
+  FindManyOptions,
 } from "../types";
 import * as neo4j from "../neo4j";
 
@@ -141,8 +143,56 @@ export default class Model<T = any> {
   }
 
   @Connected
-  findMany(): void {
-    // TODO
+  async findMany(
+    input: FindManyInput,
+    options: FindManyOptions = {}
+  ): Promise<T[]> {
+    if (!input) {
+      throw new Error("input required");
+    }
+
+    const validate = await graphql({
+      schema: this.runtime.validationSchema,
+      source: `
+        query ($FindManyInput: User_Find_Input!) {
+          ${this.name}FindManyInput(input: $FindManyInput)
+        }
+      `,
+      variableValues: {
+        FindManyInput: input,
+      },
+    });
+
+    if (validate.errors) {
+      throw new Error(validate.errors[0].message);
+    }
+
+    const result = await neo4j.findMany<T>({ model: this, input, options });
+
+    const selection = options.selectionSet
+      ? options.selectionSet
+      : this.selectionSet;
+
+    const resolve = await graphql({
+      schema: this.runtime.validationSchema,
+      source: `
+        query {
+          ${this.name}FindManyOutput${selection}
+        }
+      `,
+      contextValue: {
+        input: result,
+      },
+    });
+
+    if (resolve.errors) {
+      throw new Error(resolve.errors[0].message);
+    }
+
+    // Trick to remove '[Object: null prototype]'
+    return JSON.parse(
+      JSON.stringify(resolve.data[`${this.name}FindManyOutput`])
+    );
   }
 
   @Connected
