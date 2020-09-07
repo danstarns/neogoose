@@ -204,7 +204,7 @@ user.name // Dan
 user.repo // neogoose
 ```
 
-#### Deleting propeties
+#### Deleting properties
 > $set to `null`
 
 ```js

@@ -233,6 +233,34 @@ function createValidationSchema(input: { runtime: Runtime }): GraphQLSchema {
       },
     });
 
+    compose.Mutation.addFields({
+      [`${model.name}DeleteOneInput`]: {
+        type: "Boolean",
+        resolve: () => true,
+        args: {
+          input: `${model.name}_Find_Input`,
+        },
+      },
+      [`${model.name}DeleteOneOutput`]: {
+        type: model.name,
+        resolve: (root, args, ctx: any) => ctx.input,
+      },
+    });
+
+    compose.Mutation.addFields({
+      [`${model.name}DeleteManyInput`]: {
+        type: "Boolean",
+        resolve: () => true,
+        args: {
+          input: `${model.name}_Find_Input`,
+        },
+      },
+      [`${model.name}DeleteManyOutput`]: {
+        type: `[${model.name}]!`,
+        resolve: (root, args, ctx: any) => ctx.input,
+      },
+    });
+
     return node;
   }
 

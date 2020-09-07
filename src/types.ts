@@ -52,6 +52,10 @@ export interface ModelOptions {
    * Resolvers to attach to validation and neo4j-graphql-js schemas
    */
   resolvers?: Resolvers;
+  /**
+   * Override the default auto generated selection set.
+   */
+  selectionSet?: string;
 }
 
 /**
@@ -129,6 +133,24 @@ export type FindManyInput = Query;
 
 export interface FindManyOptions {
   selectionSet?: string;
+  limit?: number;
+  skip?: number;
+}
+
+export type DeleteOneInput = Query;
+
+export interface DeleteOneOptions {
+  selectionSet?: string;
+  return?: boolean;
+  detach?: boolean;
+}
+
+export type DeleteManyInput = Query;
+
+export interface DeleteManyOptions {
+  selectionSet?: string;
+  return?: boolean;
+  detach?: boolean;
   limit?: number;
   skip?: number;
 }

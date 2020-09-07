@@ -15,6 +15,10 @@ import {
   FindOneOptions,
   FindManyInput,
   FindManyOptions,
+  DeleteOneInput,
+  DeleteOneOptions,
+  DeleteManyInput,
+  DeleteManyOptions,
 } from "../types";
 import * as neo4j from "../neo4j";
 
@@ -93,11 +97,10 @@ export default class Model<T = any> {
   }
 
   @Connected
-  async findOne(input: FindOneInput, options: FindOneOptions = {}): Promise<T> {
-    if (!input) {
-      throw new Error("input required");
-    }
-
+  async findOne(
+    input: FindOneInput = {},
+    options: FindOneOptions = {}
+  ): Promise<T> {
     const validate = await graphql({
       schema: this.runtime.validationSchema,
       source: `
@@ -136,21 +139,21 @@ export default class Model<T = any> {
       throw new Error(resolve.errors[0].message);
     }
 
-    // Trick to remove '[Object: null prototype]'
-    return JSON.parse(
-      JSON.stringify(resolve.data[`${this.name}FindOneOutput`])
-    );
+    const node = resolve.data[`${this.name}FindOneOutput`];
+
+    if (node) {
+      // Trick to remove '[Object: null prototype]'
+      return JSON.parse(
+        JSON.stringify(resolve.data[`${this.name}FindOneOutput`])
+      );
+    }
   }
 
   @Connected
   async findMany(
-    input: FindManyInput,
+    input: FindManyInput = {},
     options: FindManyOptions = {}
   ): Promise<T[]> {
-    if (!input) {
-      throw new Error("input required");
-    }
-
     const validate = await graphql({
       schema: this.runtime.validationSchema,
       source: `
@@ -189,10 +192,10 @@ export default class Model<T = any> {
       throw new Error(resolve.errors[0].message);
     }
 
+    const nodes = resolve.data[`${this.name}FindManyOutput`];
+
     // Trick to remove '[Object: null prototype]'
-    return JSON.parse(
-      JSON.stringify(resolve.data[`${this.name}FindManyOutput`])
-    );
+    return JSON.parse(JSON.stringify(nodes));
   }
 
   @Connected
@@ -206,12 +209,106 @@ export default class Model<T = any> {
   }
 
   @Connected
-  deleteOne(): void {
-    // TODO
+  async deleteOne(
+    input: DeleteOneInput = {},
+    options: DeleteOneOptions = {}
+  ): Promise<T | void> {
+    const validate = await graphql({
+      schema: this.runtime.validationSchema,
+      source: `
+        mutation ($DeleteOneInput: User_Find_Input!) {
+          ${this.name}DeleteOneInput(input: $DeleteOneInput)
+        }
+      `,
+      variableValues: {
+        DeleteOneInput: input,
+      },
+    });
+
+    if (validate.errors) {
+      throw new Error(validate.errors[0].message);
+    }
+
+    const result = await neo4j.deleteOne<T>({ model: this, input, options });
+
+    if (options.return) {
+      const selection = options.selectionSet
+        ? options.selectionSet
+        : this.selectionSet;
+
+      const resolve = await graphql({
+        schema: this.runtime.validationSchema,
+        source: `
+          mutation {
+            ${this.name}DeleteOneOutput${selection}
+          }
+        `,
+        contextValue: {
+          input: result,
+        },
+      });
+
+      if (resolve.errors) {
+        throw new Error(resolve.errors[0].message);
+      }
+
+      const node = resolve.data[`${this.name}DeleteOneOutput`];
+
+      if (node) {
+        // Trick to remove '[Object: null prototype]'
+        return JSON.parse(JSON.stringify(node));
+      }
+    }
   }
 
   @Connected
-  deleteMany(): void {
-    // TODO
+  async deleteMany(
+    input: DeleteManyInput = {},
+    options: DeleteManyOptions = {}
+  ): Promise<T | void> {
+    const validate = await graphql({
+      schema: this.runtime.validationSchema,
+      source: `
+        mutation ($DeleteManyInput: User_Find_Input!) {
+          ${this.name}DeleteManyInput(input: $DeleteManyInput)
+        }
+      `,
+      variableValues: {
+        DeleteManyInput: input,
+      },
+    });
+
+    if (validate.errors) {
+      throw new Error(validate.errors[0].message);
+    }
+
+    const result = await neo4j.deleteMany<T>({ model: this, input, options });
+
+    if (options.return) {
+      const selection = options.selectionSet
+        ? options.selectionSet
+        : this.selectionSet;
+
+      const resolve = await graphql({
+        schema: this.runtime.validationSchema,
+        source: `
+          mutation {
+            ${this.name}DeleteManyOutput${selection}
+          }
+        `,
+        contextValue: {
+          input: result,
+        },
+      });
+
+      if (resolve.errors) {
+        throw new Error(resolve.errors[0].message);
+      }
+
+      const nodes = resolve.data[`${this.name}DeleteManyOutput`];
+
+      // Trick to remove '[Object: null prototype]'
+      return JSON.parse(JSON.stringify(nodes));
+    }
   }
 }
