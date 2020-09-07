@@ -3,7 +3,11 @@ import { getInputByName, getFieldTypeName } from "../graphql";
 import { Runtime } from "../types";
 import { Model } from "../classes";
 import getRelationshipDirective from "./get-relationship-directive";
-import { ObjectTypeComposer, SchemaComposer } from "graphql-compose";
+import {
+  ObjectTypeComposer,
+  SchemaComposer,
+  ComposeOutputType,
+} from "graphql-compose";
 import {
   constraintDirective,
   constraintDirectiveTypeDefs,
@@ -179,16 +183,16 @@ function createValidationSchema(input: { runtime: Runtime }): GraphQLSchema {
       }
     });
 
-    // compose.createInputTC({
-    //   name: `${model.name}_Find_Input`,
-    //   fields: Object.entries(composeFields).reduce(
-    //     (res, [k, v]: [string, { type: ComposeOutputType<any> }]) => ({
-    //       ...res,
-    //       [k]: { type: v.type.getTypeName().replace(/!/g, "") },
-    //     }),
-    //     {}
-    //   ),
-    // });
+    compose.createInputTC({
+      name: `${model.name}_Find_Input`,
+      fields: Object.entries(composeFields).reduce(
+        (res, [k, v]: [string, { type: ComposeOutputType<any> }]) => ({
+          ...res,
+          [k]: { type: v.type.getTypeName().replace(/!/g, "") },
+        }),
+        {}
+      ),
+    });
 
     compose.Mutation.addFields({
       [`${model.name}CreateOneInput`]: {
@@ -201,10 +205,16 @@ function createValidationSchema(input: { runtime: Runtime }): GraphQLSchema {
     });
 
     compose.Query.addFields({
-      // TODO
-      [`${model.name}`]: {
-        type: model.name,
+      [`${model.name}FindOneInput`]: {
+        type: "Boolean",
         resolve: () => true,
+        args: {
+          input: `${model.name}_Find_Input`,
+        },
+      },
+      [`${model.name}FindOneOutput`]: {
+        type: model.name,
+        resolve: (root, args, ctx: any) => ctx.input,
       },
     });
 

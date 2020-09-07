@@ -70,6 +70,7 @@ export interface ModelInput {
   relations: FieldDefinitionNode[];
   cyphers: FieldDefinitionNode[];
   nested: FieldDefinitionNode[];
+  selectionSet: string;
 }
 
 /**
@@ -112,6 +113,16 @@ export interface CreateOneInput {
     | any[]
     | { properties: { [kk: string]: any }; node: CreateOneInput }
     | { properties: { [kk: string]: any }; node: CreateOneInput }[];
+}
+
+export interface Query {
+  [k: string]: string | boolean | number;
+}
+
+export type FindOneInput = Query;
+
+export interface FindOneOptions {
+  selectionSet?: string;
 }
 
 export { Connection, Model };

@@ -85,6 +85,8 @@ function model<T = any>(runtime: Runtime): CreateOrGetModel {
       input.properties = propertiesInput;
     }
 
+    let selectionSet = "{";
+
     const documentReferenceNames = document.definitions
       .filter((x) => Boolean(x.kind === "ObjectTypeDefinition"))
       .map((x: ObjectTypeDefinitionNode) => x.name.value);
@@ -102,10 +104,14 @@ function model<T = any>(runtime: Runtime): CreateOrGetModel {
         } else if (cypherDirective) {
           res.cyphers.push(field);
         } else if (isNested) {
+          selectionSet += field.name.value;
           res.nested.push(field);
         } else {
+          selectionSet += field.name.value;
           res.fields.push(field);
         }
+
+        selectionSet += "\n";
 
         return res;
       },
@@ -117,6 +123,9 @@ function model<T = any>(runtime: Runtime): CreateOrGetModel {
       nested: FieldDefinitionNode[];
     };
 
+    selectionSet += "}";
+
+    input.selectionSet = selectionSet;
     input.relations = relations;
     input.fields = fields;
     input.cyphers = cyphers;

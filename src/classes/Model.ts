@@ -11,6 +11,8 @@ import {
   Resolvers,
   CreateOneInput,
   ModelInput,
+  FindOneInput,
+  FindOneOptions,
 } from "../types";
 import * as neo4j from "../neo4j";
 
@@ -40,8 +42,10 @@ export default class Model<T = any> {
     this.cyphers = input.cyphers;
     this.fields = input.fields;
     this.nested = input.nested;
+    this.selectionSet = input.selectionSet;
   }
 
+  // TODO not working
   async createOne(input: CreateOneInput): Promise<void> {
     const { errors } = await graphql({
       schema: this.runtime.validationSchema,
@@ -66,8 +70,53 @@ export default class Model<T = any> {
     // TODO
   }
 
-  findOne(): void {
-    // TODO
+  async findOne(input: FindOneInput, options: FindOneOptions = {}): Promise<T> {
+    if (!input) {
+      throw new Error("input required");
+    }
+
+    const validate = await graphql({
+      schema: this.runtime.validationSchema,
+      source: `
+        query ($FindOneInput: User_Find_Input!) {
+          ${this.name}FindOneInput(input: $FindOneInput)
+        }
+      `,
+      variableValues: {
+        FindOneInput: input,
+      },
+    });
+
+    if (validate.errors) {
+      throw new Error(validate.errors[0].message);
+    }
+
+    const result = await neo4j.findOne<T>({ model: this, input });
+
+    const selection = options.selectionSet
+      ? options.selectionSet
+      : this.selectionSet;
+
+    const resolve = await graphql({
+      schema: this.runtime.validationSchema,
+      source: `
+        query {
+          ${this.name}FindOneOutput${selection}
+        }
+      `,
+      contextValue: {
+        input: result,
+      },
+    });
+
+    if (resolve.errors) {
+      throw new Error(resolve.errors[0].message);
+    }
+
+    // Trick to remove '[Object: null prototype]'
+    return JSON.parse(
+      JSON.stringify(resolve.data[`${this.name}FindOneOutput`])
+    );
   }
 
   findMany(): void {
