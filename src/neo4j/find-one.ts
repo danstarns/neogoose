@@ -44,9 +44,11 @@ async function findOne<T = any>({
   try {
     const result = await session.run(query, { node: input });
 
-    const properties = result.records[0].get("n").properties as T;
+    const node = result.records[0];
 
-    return properties;
+    if (node) {
+      return node.get("n").properties as T;
+    }
   } catch (error) {
     throw error;
   } finally {
