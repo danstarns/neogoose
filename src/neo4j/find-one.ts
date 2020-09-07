@@ -38,6 +38,7 @@ async function findOne<T = any>({
   const query = `
     MATCH (n:${model.name} ${createParams()})
     RETURN n
+    LIMIT 1
   `;
 
   try {
