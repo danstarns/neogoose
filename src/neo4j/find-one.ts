@@ -18,10 +18,10 @@ async function findOne<T = any>({
 
   const session = connection.driver.session(sessionOptions);
 
+  const keys = Object.keys(input);
+
   function createParams() {
     let params = `{`;
-
-    const keys = Object.keys(input);
 
     for (let i = 0; i < keys.length; i++) {
       const k = keys[i];
@@ -36,7 +36,7 @@ async function findOne<T = any>({
   }
 
   const query = `
-    MATCH (n:${model.name} ${createParams()})
+    MATCH (n:${model.name} ${keys.length ? createParams() : ""})
     RETURN n
     LIMIT 1
   `;
