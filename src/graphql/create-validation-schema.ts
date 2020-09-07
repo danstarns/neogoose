@@ -13,6 +13,7 @@ import {
   constraintDirectiveTypeDefs,
 } from "graphql-constraint-directive";
 import { makeExecutableSchema } from "@graphql-tools/schema";
+import { mergeTypeDefs, mergeResolvers } from "@graphql-tools/merge";
 import removeNeo4jGQLFieldDirectives from "./remove-neo4j-gql-field-directives";
 
 function createValidationSchema(input: { runtime: Runtime }): GraphQLSchema {
@@ -227,11 +228,11 @@ function createValidationSchema(input: { runtime: Runtime }): GraphQLSchema {
   const resolvers = compose.getResolveMethods();
 
   const schema = makeExecutableSchema({
-    typeDefs: [constraintDirectiveTypeDefs, typeDefs],
-    resolvers: input.runtime.models.reduce(
-      (res, m) => ({ ...res, ...(m.resolvers ? m.resolvers : {}) }),
-      resolvers
-    ),
+    typeDefs: mergeTypeDefs([constraintDirectiveTypeDefs, typeDefs]),
+    resolvers: mergeResolvers([
+      ...input.runtime.models.map((x) => x.resolvers).filter(Boolean),
+      resolvers,
+    ]),
     schemaTransforms: [constraintDirective()],
   });
 
