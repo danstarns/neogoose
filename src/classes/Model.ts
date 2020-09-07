@@ -143,9 +143,7 @@ export default class Model<T = any> {
 
     if (node) {
       // Trick to remove '[Object: null prototype]'
-      return JSON.parse(
-        JSON.stringify(resolve.data[`${this.name}FindOneOutput`])
-      );
+      return JSON.parse(JSON.stringify(node));
     }
   }
 
