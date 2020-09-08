@@ -20,15 +20,23 @@ async function Connect(): Promise<neo4j.Driver> {
     await util.promisify(setTimeout)(Number(process.env.NEO_WAIT));
   }
 
-  const auth = neo4j.auth.basic(process.env.NEO_USER, process.env.NEO_PASSWORD);
+  try {
+    const auth = neo4j.auth.basic(
+      process.env.NEO_USER,
+      process.env.NEO_PASSWORD
+    );
 
-  driver = neo4j.driver(process.env.NEO_URL, auth);
+    driver = neo4j.driver(process.env.NEO_URL, auth);
 
-  await driver.verifyConnectivity();
+    await driver.verifyConnectivity();
 
-  await neogoose.connect(process.env.NEO_URL, auth);
+    await neogoose.connect(process.env.NEO_URL, auth);
 
-  return driver;
+    return driver;
+  } catch (error) {
+    console.error(error);
+    process.exit(1);
+  }
 }
 
 export = Connect;
