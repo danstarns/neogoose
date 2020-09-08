@@ -184,18 +184,25 @@ function createValidationSchema(input: { runtime: Runtime }): GraphQLSchema {
       }
     });
 
+    const looseInputFields = Object.entries(composeFields).reduce(
+      (res, [k, v]: [string, { type: ComposeOutputType<any> }]) => ({
+        ...res,
+        [k]: { type: v.type.getTypeName().replace(/!/g, "") },
+      }),
+      {}
+    );
+
     compose.createInputTC({
       name: `${model.name}_Find_Input`,
-      fields: Object.entries(composeFields).reduce(
-        (res, [k, v]: [string, { type: ComposeOutputType<any> }]) => ({
-          ...res,
-          [k]: { type: v.type.getTypeName().replace(/!/g, "") },
-        }),
-        {}
-      ),
+      fields: looseInputFields,
     });
 
-    compose.Mutation.addFields({
+    compose.createInputTC({
+      name: `${model.name}_Update_Input`,
+      fields: looseInputFields,
+    });
+
+    compose.Query.addFields({
       [`${model.name}CreateOneInput`]: {
         type: "Boolean",
         resolve: () => true,
@@ -233,7 +240,7 @@ function createValidationSchema(input: { runtime: Runtime }): GraphQLSchema {
       },
     });
 
-    compose.Mutation.addFields({
+    compose.Query.addFields({
       [`${model.name}DeleteOneInput`]: {
         type: "Boolean",
         resolve: () => true,
@@ -247,7 +254,7 @@ function createValidationSchema(input: { runtime: Runtime }): GraphQLSchema {
       },
     });
 
-    compose.Mutation.addFields({
+    compose.Query.addFields({
       [`${model.name}DeleteManyInput`]: {
         type: "Boolean",
         resolve: () => true,
@@ -257,6 +264,20 @@ function createValidationSchema(input: { runtime: Runtime }): GraphQLSchema {
       },
       [`${model.name}DeleteManyOutput`]: {
         type: `[${model.name}]!`,
+        resolve: (root, args, ctx: any) => ctx.input,
+      },
+    });
+
+    compose.Query.addFields({
+      [`${model.name}UpdateOneInput`]: {
+        type: "Boolean",
+        resolve: () => true,
+        args: {
+          input: `${model.name}_Update_Input`,
+        },
+      },
+      [`${model.name}UpdateOneOutput`]: {
+        type: model.name,
         resolve: (root, args, ctx: any) => ctx.input,
       },
     });

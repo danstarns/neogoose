@@ -19,6 +19,8 @@ import {
   DeleteOneOptions,
   DeleteManyInput,
   DeleteManyOptions,
+  Update,
+  UpdateOneOptions,
 } from "../types";
 import * as neo4j from "../neo4j";
 
@@ -75,7 +77,7 @@ export default class Model<T = any> {
     const { errors } = await graphql({
       schema: this.runtime.validationSchema,
       source: `
-        mutation ($CreateOneInput: User_Input!) {
+        query ($CreateOneInput: ${this.name}_Input!) {
           ${this.name}CreateOneInput(input: $CreateOneInput)
         }
       `,
@@ -104,7 +106,7 @@ export default class Model<T = any> {
     const validate = await graphql({
       schema: this.runtime.validationSchema,
       source: `
-        query ($FindOneInput: User_Find_Input!) {
+        query ($FindOneInput: ${this.name}_Find_Input!) {
           ${this.name}FindOneInput(input: $FindOneInput)
         }
       `,
@@ -155,7 +157,7 @@ export default class Model<T = any> {
     const validate = await graphql({
       schema: this.runtime.validationSchema,
       source: `
-        query ($FindManyInput: User_Find_Input!) {
+        query ($FindManyInput: ${this.name}_Find_Input!) {
           ${this.name}FindManyInput(input: $FindManyInput)
         }
       `,
@@ -197,8 +199,100 @@ export default class Model<T = any> {
   }
 
   @Connected
-  updateOne(): void {
-    // TODO
+  async updateOne(
+    input: FindOneInput,
+    update: Update,
+    options: UpdateOneOptions = {}
+  ): Promise<T | any> {
+    const fieldNames = this.fields.map((x) => x.name.value);
+
+    const { set, normal } = Object.entries(update).reduce(
+      (res, [k, v]) => {
+        if (k === "$set") {
+          if (!res.set) {
+            res.set = {};
+          }
+
+          res.set = Object.entries(v).reduce((r, [x, y]) => {
+            if (!fieldNames.includes(x)) {
+              return r;
+            }
+
+            return { ...r, [x]: y };
+          }, {});
+        } else {
+          if (!res.normal) {
+            res.normal = {};
+          }
+
+          res.normal[k] = v;
+        }
+
+        return res;
+      },
+      {
+        set: null,
+        normal: null,
+      }
+    );
+
+    const validate = await graphql({
+      schema: this.runtime.validationSchema,
+      source: `
+        query (
+           ${normal ? `$UpdateInput: ${this.name}_Update_Input,` : ""}
+           $FindOneInput: ${this.name}_Find_Input
+        ) {
+            ${this.name}FindOneInput(input: $FindOneInput)
+            ${normal ? `${this.name}UpdateOneInput(input: $UpdateInput)` : ""}
+          }
+      `,
+      variableValues: {
+        FindOneInput: input,
+        ...(normal ? { UpdateInput: normal } : {}),
+      },
+    });
+
+    if (validate.errors) {
+      throw new Error(validate.errors[0].message);
+    }
+
+    const result = await neo4j.updateOne<T>({
+      model: this,
+      query: input,
+      update: normal,
+      set: set,
+      options,
+    });
+
+    if (options.return) {
+      const selection = options.selectionSet
+        ? options.selectionSet
+        : this.selectionSet;
+
+      const resolve = await graphql({
+        schema: this.runtime.validationSchema,
+        source: `
+          query {
+            ${this.name}UpdateOneOutput${selection}
+          }
+        `,
+        contextValue: {
+          input: result,
+        },
+      });
+
+      if (resolve.errors) {
+        throw new Error(resolve.errors[0].message);
+      }
+
+      const node = resolve.data[`${this.name}UpdateOneOutput`];
+
+      if (node) {
+        // Trick to remove '[Object: null prototype]'
+        return JSON.parse(JSON.stringify(node));
+      }
+    }
   }
 
   @Connected
@@ -214,7 +308,7 @@ export default class Model<T = any> {
     const validate = await graphql({
       schema: this.runtime.validationSchema,
       source: `
-        mutation ($DeleteOneInput: User_Find_Input!) {
+        query ($DeleteOneInput: User_Find_Input!) {
           ${this.name}DeleteOneInput(input: $DeleteOneInput)
         }
       `,
@@ -237,7 +331,7 @@ export default class Model<T = any> {
       const resolve = await graphql({
         schema: this.runtime.validationSchema,
         source: `
-          mutation {
+          query {
             ${this.name}DeleteOneOutput${selection}
           }
         `,
@@ -267,7 +361,7 @@ export default class Model<T = any> {
     const validate = await graphql({
       schema: this.runtime.validationSchema,
       source: `
-        mutation ($DeleteManyInput: User_Find_Input!) {
+        query ($DeleteManyInput: User_Find_Input!) {
           ${this.name}DeleteManyInput(input: $DeleteManyInput)
         }
       `,
@@ -290,7 +384,7 @@ export default class Model<T = any> {
       const resolve = await graphql({
         schema: this.runtime.validationSchema,
         source: `
-          mutation {
+          query {
             ${this.name}DeleteManyOutput${selection}
           }
         `,

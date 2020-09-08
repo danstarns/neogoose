@@ -123,6 +123,10 @@ export interface Query {
   [k: string]: string | boolean | number;
 }
 
+export interface Update {
+  [k: string]: any | { $set: { [x: string]: any } };
+}
+
 export type FindOneInput = Query;
 
 export interface FindOneOptions {
@@ -153,6 +157,11 @@ export interface DeleteManyOptions {
   detach?: boolean;
   limit?: number;
   skip?: number;
+}
+
+export interface UpdateOneOptions {
+  selectionSet?: string;
+  return?: boolean;
 }
 
 export { Connection, Model };
