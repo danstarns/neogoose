@@ -47,6 +47,7 @@ async function updateOne<T = any>({
 
   const cypher = `
     MATCH (n:${model.name} ${keys.length ? createParams() : ""})
+    WITH n LIMIT 1
     ${update ? `SET n = $update` : ""}
     ${set ? `SET n += $set` : ""}
     ${options.return ? `RETURN n` : ""}
