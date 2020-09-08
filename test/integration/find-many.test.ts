@@ -23,7 +23,7 @@ describe("findMany", () => {
     const session = driver.session({ defaultAccessMode: "WRITE" });
 
     const createCypher = `
-        CREATE (:User {id: $id}), (:User {id: $id}), (:User {id: $id}), (:User {id: "random user"})
+        CREATE (:User {id: $id}), (:User {id: $id}), (:User {id: $id})
     `;
 
     try {
