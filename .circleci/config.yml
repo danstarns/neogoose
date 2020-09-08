@@ -48,6 +48,10 @@ workflows:
   version: 2
   intergration_tests:
     jobs:
+      - neo4j:
+          filters:
+            branches:
+              only: /master/
       - install_dependencies:
           filters:
             branches:
