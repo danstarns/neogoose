@@ -21,6 +21,8 @@ import {
   DeleteManyOptions,
   Update,
   UpdateOneOptions,
+  Query,
+  UpdateManyOptions,
 } from "../types";
 import * as neo4j from "../neo4j";
 
@@ -244,7 +246,7 @@ export default class Model<T = any> {
            $FindOneInput: ${this.name}_Find_Input
         ) {
             ${this.name}FindOneInput(input: $FindOneInput)
-            ${normal ? `${this.name}UpdateOneInput(input: $UpdateInput)` : ""}
+            ${normal ? `${this.name}UpdateInput(input: $UpdateInput)` : ""}
           }
       `,
       variableValues: {
@@ -296,8 +298,98 @@ export default class Model<T = any> {
   }
 
   @Connected
-  updateMany(): void {
-    // TODO
+  async updateMany(
+    input: Query,
+    update: Update,
+    options: UpdateManyOptions
+  ): Promise<T[] | void> {
+    const fieldNames = this.fields.map((x) => x.name.value);
+
+    const { set, normal } = Object.entries(update).reduce(
+      (res, [k, v]) => {
+        if (k === "$set") {
+          if (!res.set) {
+            res.set = {};
+          }
+
+          res.set = Object.entries(v).reduce((r, [x, y]) => {
+            if (!fieldNames.includes(x)) {
+              return r;
+            }
+
+            return { ...r, [x]: y };
+          }, {});
+        } else {
+          if (!res.normal) {
+            res.normal = {};
+          }
+
+          res.normal[k] = v;
+        }
+
+        return res;
+      },
+      {
+        set: null,
+        normal: null,
+      }
+    );
+
+    const validate = await graphql({
+      schema: this.runtime.validationSchema,
+      source: `
+        query (
+           ${normal ? `$UpdateInput: ${this.name}_Update_Input,` : ""}
+           $UpdateManyInput: ${this.name}_Find_Input
+        ) {
+           ${this.name}FindOneInput(input: $UpdateManyInput)
+           ${normal ? `${this.name}UpdateInput(input: $UpdateInput)` : ""}
+          }
+      `,
+      variableValues: {
+        UpdateManyInput: input,
+        ...(normal ? { UpdateInput: normal } : {}),
+      },
+    });
+
+    if (validate.errors) {
+      throw new Error(validate.errors[0].message);
+    }
+
+    const result = await neo4j.updateMany<T>({
+      model: this,
+      query: input,
+      update: normal,
+      set: set,
+      options,
+    });
+
+    if (options.return) {
+      const selection = options.selectionSet
+        ? options.selectionSet
+        : this.selectionSet;
+
+      const resolve = await graphql({
+        schema: this.runtime.validationSchema,
+        source: `
+          query {
+            ${this.name}UpdateManyOutput${selection}
+          }
+        `,
+        contextValue: {
+          input: result,
+        },
+      });
+
+      if (resolve.errors) {
+        throw new Error(resolve.errors[0].message);
+      }
+
+      const nodes = resolve.data[`${this.name}UpdateManyOutput`];
+
+      // Trick to remove '[Object: null prototype]'
+      return JSON.parse(JSON.stringify(nodes));
+    }
   }
 
   @Connected

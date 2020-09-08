@@ -164,4 +164,11 @@ export interface UpdateOneOptions {
   return?: boolean;
 }
 
+export interface UpdateManyOptions {
+  selectionSet?: string;
+  return?: boolean;
+  limit?: number;
+  skip?: number;
+}
+
 export { Connection, Model };

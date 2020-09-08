@@ -269,7 +269,7 @@ function createValidationSchema(input: { runtime: Runtime }): GraphQLSchema {
     });
 
     compose.Query.addFields({
-      [`${model.name}UpdateOneInput`]: {
+      [`${model.name}UpdateInput`]: {
         type: "Boolean",
         resolve: () => true,
         args: {
@@ -278,6 +278,10 @@ function createValidationSchema(input: { runtime: Runtime }): GraphQLSchema {
       },
       [`${model.name}UpdateOneOutput`]: {
         type: model.name,
+        resolve: (root, args, ctx: any) => ctx.input,
+      },
+      [`${model.name}UpdateManyOutput`]: {
+        type: `[${model.name}]!`,
         resolve: (root, args, ctx: any) => ctx.input,
       },
     });
