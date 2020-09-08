@@ -26,6 +26,9 @@ async function Connect(): Promise<neo4j.Driver> {
       process.env.NEO_PASSWORD
     );
 
+    console.log("Connecting to neo4j " + process.env.NEO_URL);
+    console.log("With user " + process.env.NEO_USER);
+
     driver = neo4j.driver(process.env.NEO_URL, auth);
 
     await driver.verifyConnectivity();

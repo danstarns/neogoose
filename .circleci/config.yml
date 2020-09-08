@@ -20,7 +20,7 @@ jobs:
           command: docker build -t integration-image -f ./Dockerfile.integration.test .
       - run:
           name: Run tests
-          command: docker run --network neogoose_network --name intergration-container -e NEO_USER='neo4j' -e NEO_URL='bolt://neogoose_network:7687/neo4j' -e NEO_PASSWORD='test' -e NEO_WAIT='10000' integration-image
+          command: docker run --network neogoose_network --name intergration-container -e NEO_USER='neo4j' -e NEO_URL='bolt://neogoose_network:7687/neo4j' -e NEO_PASSWORD='test' -e NEO_WAIT='30000' integration-image
 
 workflows:
   version: 2
