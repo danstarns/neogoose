@@ -302,7 +302,7 @@ export default class Model<T = any> {
     input: Query,
     update: Update,
     options: UpdateManyOptions
-  ): Promise<T[] | void> {
+  ): Promise<T[]> {
     const fieldNames = this.fields.map((x) => x.name.value);
 
     const { set, normal } = Object.entries(update).reduce(
