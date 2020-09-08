@@ -4,7 +4,7 @@ import { Driver } from "neo4j-driver";
 import { generate } from "randomstring";
 import { expect } from "chai";
 
-describe("findOne", () => {
+describe("findMany", () => {
   let driver: Driver;
 
   before((done) => {
