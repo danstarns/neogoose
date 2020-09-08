@@ -3,26 +3,14 @@ orbs:
   node: circleci/node@1.1.6
 
 jobs:
-  neo4j:
+  startneo_install_test:
     docker:
+      - image: circleci/node:12.16.1
       - image: neo4j:latest
+        entrypoint: /bin/bash
+        command: -c "/sbin/tini -g -s -v -- /docker-entrypoint.sh neo4j"
         environment:
           NEO4J_AUTH: neo4j/test
-    steps:
-      - run: /docker-entrypoint.sh
-  run_tests:
-    docker:
-      - image: circleci/node:12.16.1
-    working_directory: ~/repo
-    steps:
-      - checkout
-      - run:
-          name: Run tests
-          command: npx cross-env NEO_USER=neo4j NEO_PASSWORD=test NEO_URL=bolt://localhost:7687/neo4j NEO_WAIT=30000 npm run test-integration
-
-  install_dependencies:
-    docker:
-      - image: circleci/node:12.16.1
     working_directory: ~/repo
     steps:
       - checkout
@@ -41,23 +29,15 @@ jobs:
       - persist_to_workspace:
           root: ~/repo
           paths: .
+      - run:
+          name: Run tests
+          command: npx cross-env NEO_USER=neo4j NEO_PASSWORD=test NEO_URL=bolt://localhost:7687/neo4j NEO_WAIT=30000 npm run test-integration
 
 workflows:
   version: 2
   intergration_tests:
     jobs:
-      - neo4j:
-          filters:
-            branches:
-              only: /master/
-      - install_dependencies:
-          filters:
-            branches:
-              only: /master/
-      - run_tests:
-          requires:
-            - install_dependencies
-            - neo4j
+      - startneo_install_test:
           filters:
             branches:
               only: /master/
