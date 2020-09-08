@@ -6,6 +6,7 @@
   "types": "./dist/index.d.ts",
   "scripts": {
     "test-unit": "cross-env ./node_modules/.bin/mocha --recursive --exit --timeout=100000 -r ts-node/register test/unit/**/*.test.ts",
+    "test-integration": "cross-env ./node_modules/.bin/mocha --recursive --exit --timeout=100000 -r ts-node/register test/integration/**/*.test.ts",
     "build": "rm -rf dist && tsc"
   },
   "repository": {
