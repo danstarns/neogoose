@@ -20,7 +20,7 @@ describe("findOne", () => {
       charset: "alphabetic",
     });
 
-    const session = driver.session();
+    const session = driver.session({ defaultAccessMode: "WRITE" });
 
     const createCypher = `
         CREATE (n:User {id: $id})

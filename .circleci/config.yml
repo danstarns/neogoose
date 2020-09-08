@@ -1,7 +1,32 @@
 version: 2.1
 orbs:
-  node: circleci/node@3.0.0
+  node: circleci/node@1.1.6
+jobs:
+  integration_tests:
+    docker:
+      - image: circleci/node:12.16.1
+    working_directory: ~/repo
+    steps:
+      - setup_remote_docker
+      - checkout
+      - run:
+          name: Start Docker Network
+          command: docker network create neogoose
+      - run:
+          name: Start Neo4j
+          command: docker run --name testneo4j -p7474:7474 -p7687:7687 -d -v $HOME/neo4j/data:/data -v $HOME/neo4j/logs:/logs -v $HOME/neo4j/import:/var/lib/neo4j/import -v $HOME/neo4j/plugins:/plugins --env NEO4J_AUTH=neo4j/test neo4j:latest
+      - run:
+          name: Install cross-env
+          command: npm install cross-env
+      - run:
+          name: Run tests
+          command: cross-env NEO_USER=neo4j NEO_PASSWORD=test NEO_URL=neo4j://localhost:7687/neo4j NEO_WAIT=10000 npm run test-integration
+
 workflows:
-  node-tests:
+  version: 2
+  master_default:
     jobs:
-      - node/test
+      - integration_tests:
+          filters:
+            branches:
+              only: /master/

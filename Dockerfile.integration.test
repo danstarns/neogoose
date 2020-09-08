@@ -1,0 +1,15 @@
+FROM node:12.16.3
+
+WORKDIR /app
+
+RUN npm i cross-env -g
+
+COPY ./package.json ./package.json
+
+RUN npm i
+
+COPY ./tsconfig.json ./tsconfig.json
+COPY ./test/ ./test/
+COPY ./src/ ./src/
+
+CMD ["npm", "run", "test-integration"]
