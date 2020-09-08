@@ -10,20 +10,11 @@ jobs:
       - setup_remote_docker
       - checkout
       - run:
-          name: Start Docker Network
-          command: docker network create neogoose_network
-      - run:
           name: Start Neo4j
-          command: docker run --network neogoose_network --detach --name testneo4j -e NEO4J_AUTH='neo4j/test' --publish 7474:7474 --publish 7687:7687 -v $HOME/neo4j/data:/data -v $HOME/neo4j/logs:/logs -v $HOME/neo4j/import:/var/lib/neo4j/import -v $HOME/neo4j/plugins:/plugins neo4j:latest
-      - run:
-          name: Build image
-          command: docker build -t integration-image -f ./Dockerfile.integration.test .
-      - run:
-          name: Log neo4j
-          command: docker container logs testneo4j
+          command: docker run --detach --name testneo4j -e NEO4J_AUTH='neo4j/test' --publish 7687:7687 -v $HOME/neo4j/data:/data -v $HOME/neo4j/logs:/logs -v $HOME/neo4j/import:/var/lib/neo4j/import -v $HOME/neo4j/plugins:/plugins neo4j:latest
       - run:
           name: Run tests
-          command: docker run --network neogoose_network --name intergration-container -e NEO_USER='neo4j' -e NEO_URL='bolt://host.docker.internal:7687/neo4j' -e NEO_PASSWORD='test' -e NEO_WAIT='30000' integration-image
+          command: npx cross-env NEO_USER=neo4j NEO_PASSWORD=test NEO_URL=bolt://localhost:7687/neo4j NEO_WAIT=30000 npm run test-integration`
 
 workflows:
   version: 2
