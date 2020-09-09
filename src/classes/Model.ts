@@ -182,8 +182,8 @@ export default class Model<T = any> {
 
   @Connected
   async updateOne(
-    query: Query,
-    update: Update,
+    query: Query = {},
+    update: Update = {},
     options: UpdateOneOptions = {}
   ): Promise<T | any> {
     const fieldNames = this.fields.map((x) => x.name.value);
@@ -257,10 +257,10 @@ export default class Model<T = any> {
 
   @Connected
   async updateMany(
-    query: Query,
-    update: Update,
-    options: UpdateManyOptions
-  ): Promise<T[]> {
+    query: Query = {},
+    update: Update = {},
+    options: UpdateManyOptions = {}
+  ): Promise<T[] | void> {
     const fieldNames = this.fields.map((x) => x.name.value);
 
     const { set, normal } = Object.entries(update).reduce(
@@ -352,7 +352,7 @@ export default class Model<T = any> {
   async deleteMany(
     query: Query = {},
     options: DeleteManyOptions = {}
-  ): Promise<T | void> {
+  ): Promise<T[] | void> {
     const result = await neo4j.deleteMany<T>({ model: this, query, options });
 
     if (options.return) {
