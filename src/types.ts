@@ -120,7 +120,7 @@ export interface CreateOneInput {
 }
 
 export interface Query {
-  [k: string]: string | boolean | number;
+  [k: string]: any;
 }
 
 export interface Update {
