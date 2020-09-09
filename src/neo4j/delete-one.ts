@@ -3,11 +3,11 @@ import { Query, DeleteOneOptions, SessionOptions } from "../types";
 
 async function deleteOne<T = any>({
   model,
-  input,
+  query,
   options,
 }: {
   model: Model;
-  input: Query;
+  query: Query;
   options: DeleteOneOptions;
 }): Promise<T | void> {
   const connection = model.runtime.connection;
@@ -20,7 +20,7 @@ async function deleteOne<T = any>({
 
   const session = connection.driver.session(sessionOptions);
 
-  const keys = Object.keys(input);
+  const keys = Object.keys(query);
 
   function createParams() {
     let params = `{`;
@@ -37,7 +37,7 @@ async function deleteOne<T = any>({
     return params;
   }
 
-  const query = `
+  const cypher = `
     MATCH (n:${model.name} ${keys.length ? createParams() : ""})
     WITH n LIMIT 1
     ${options.detach ? "DETACH" : ""} DELETE n
@@ -45,7 +45,7 @@ async function deleteOne<T = any>({
   `;
 
   try {
-    const result = await session.run(query, { node: input });
+    const result = await session.run(cypher, { node: query });
 
     if (options.return) {
       const node = result.records[0];

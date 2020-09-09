@@ -3,11 +3,11 @@ import { Query, FindManyOptions, SessionOptions } from "../types";
 
 async function findMany<T = any>({
   model,
-  input,
+  query,
   options,
 }: {
   model: Model;
-  input: Query;
+  query: Query;
   options: FindManyOptions;
 }): Promise<T[]> {
   const connection = model.runtime.connection;
@@ -20,7 +20,7 @@ async function findMany<T = any>({
 
   const session = connection.driver.session(sessionOptions);
 
-  const keys = Object.keys(input);
+  const keys = Object.keys(query);
 
   function createParams() {
     let params = `{`;
@@ -37,7 +37,7 @@ async function findMany<T = any>({
     return params;
   }
 
-  const query = `
+  const cypher = `
       MATCH (n:${model.name} ${keys.length ? createParams() : ""})
       RETURN n
       ${options.skip ? `SKIP ${options.skip}` : ""}
@@ -45,7 +45,7 @@ async function findMany<T = any>({
     `;
 
   try {
-    const result = await session.run(query, { node: input });
+    const result = await session.run(cypher, { node: query });
 
     return result.records.map((record) => record.get("n").properties);
   } catch (error) {

@@ -2,11 +2,11 @@ import { Model, Query, DeleteManyOptions, SessionOptions } from "../types";
 
 async function deleteMany<T = any>({
   model,
-  input,
+  query,
   options,
 }: {
   model: Model;
-  input: Query;
+  query: Query;
   options: DeleteManyOptions;
 }): Promise<T[] | void> {
   const connection = model.runtime.connection;
@@ -19,7 +19,7 @@ async function deleteMany<T = any>({
 
   const session = connection.driver.session(sessionOptions);
 
-  const keys = Object.keys(input);
+  const keys = Object.keys(query);
 
   function createParams() {
     let params = `{`;
@@ -39,7 +39,7 @@ async function deleteMany<T = any>({
   const limit = options.limit ? `LIMIT ${options.limit}` : "";
   const skip = options.skip ? `SKIP ${options.skip}` : "";
 
-  const query = `
+  const cypher = `
     MATCH (n:${model.name} ${keys.length ? createParams() : ""})
     WITH n ${skip} ${limit}
     ${options.detach ? "DETACH" : ""} DELETE n
@@ -47,7 +47,7 @@ async function deleteMany<T = any>({
   `;
 
   try {
-    const result = await session.run(query, { node: input });
+    const result = await session.run(cypher, { node: query });
 
     if (options.return) {
       return result.records.map((record) => record.get("n").properties);

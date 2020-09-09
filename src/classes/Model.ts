@@ -69,6 +69,58 @@ export default class Model<T = any> {
     this.selectionSet = input.selectionSet;
   }
 
+  private async outputOne({
+    selection,
+    result,
+  }: {
+    selection: string;
+    result: any;
+  }): Promise<T | any> {
+    const resolved = await graphql({
+      schema: this.runtime.validationSchema,
+      source: `
+        query {
+          ${this.name}OutputOne${selection}
+        }
+      `,
+      contextValue: {
+        input: result,
+      },
+    });
+
+    const node = resolved.data[`${this.name}OutputOne`];
+
+    if (node) {
+      // Trick to remove '[Object: null prototype]'
+      return JSON.parse(JSON.stringify(node));
+    }
+  }
+
+  private async outputMany({
+    selection,
+    result,
+  }: {
+    selection: string;
+    result: any;
+  }): Promise<T[] | any> {
+    const resolved = await graphql({
+      schema: this.runtime.validationSchema,
+      source: `
+        query {
+          ${this.name}OutputMany${selection}
+        }
+      `,
+      contextValue: {
+        input: result,
+      },
+    });
+
+    const nodes = resolved.data[`${this.name}OutputMany`];
+
+    // Trick to remove '[Object: null prototype]'
+    return JSON.parse(JSON.stringify(nodes));
+  }
+
   // TODO not working
   @Connected
   async createOne(input: CreateOneInput): Promise<void> {
@@ -97,105 +149,40 @@ export default class Model<T = any> {
   }
 
   @Connected
-  async findOne(input: Query = {}, options: FindOneOptions = {}): Promise<T> {
-    const validate = await graphql({
-      schema: this.runtime.validationSchema,
-      source: `
-        query ($FindOneInput: ${this.name}_Find_Input!) {
-          ${this.name}FindOneInput(input: $FindOneInput)
-        }
-      `,
-      variableValues: {
-        FindOneInput: input,
-      },
-    });
-
-    if (validate.errors) {
-      throw new Error(validate.errors[0].message);
-    }
-
-    const result = await neo4j.findOne<T>({ model: this, input });
+  async findOne(query: Query = {}, options: FindOneOptions = {}): Promise<T> {
+    const result = await neo4j.findOne<T>({ model: this, query });
 
     const selection = options.selectionSet
       ? options.selectionSet
       : this.selectionSet;
 
-    const resolve = await graphql({
-      schema: this.runtime.validationSchema,
-      source: `
-        query {
-          ${this.name}FindOneOutput${selection}
-        }
-      `,
-      contextValue: {
-        input: result,
-      },
-    });
+    const resolved = await this.outputOne({ selection, result });
 
-    if (resolve.errors) {
-      throw new Error(resolve.errors[0].message);
-    }
-
-    const node = resolve.data[`${this.name}FindOneOutput`];
-
-    if (node) {
-      // Trick to remove '[Object: null prototype]'
-      return JSON.parse(JSON.stringify(node));
-    }
+    return resolved;
   }
 
   @Connected
   async findMany(
-    input: Query = {},
+    query: Query = {},
     options: FindManyOptions = {}
   ): Promise<T[]> {
-    const validate = await graphql({
-      schema: this.runtime.validationSchema,
-      source: `
-        query ($FindManyInput: ${this.name}_Find_Input!) {
-          ${this.name}FindManyInput(input: $FindManyInput)
-        }
-      `,
-      variableValues: {
-        FindManyInput: input,
-      },
-    });
-
-    if (validate.errors) {
-      throw new Error(validate.errors[0].message);
-    }
-
-    const result = await neo4j.findMany<T>({ model: this, input, options });
+    const result = await neo4j.findMany<T>({ model: this, query, options });
 
     const selection = options.selectionSet
       ? options.selectionSet
       : this.selectionSet;
 
-    const resolve = await graphql({
-      schema: this.runtime.validationSchema,
-      source: `
-        query {
-          ${this.name}FindManyOutput${selection}
-        }
-      `,
-      contextValue: {
-        input: result,
-      },
+    const resolved = await this.outputMany({
+      selection,
+      result,
     });
 
-    if (resolve.errors) {
-      throw new Error(resolve.errors[0].message);
-    }
-
-    const nodes = resolve.data[`${this.name}FindManyOutput`];
-
-    // Trick to remove '[Object: null prototype]'
-    return JSON.parse(JSON.stringify(nodes));
+    return resolved;
   }
 
   @Connected
   async updateOne(
-    input: Query,
+    query: Query,
     update: Update,
     options: UpdateOneOptions = {}
   ): Promise<T | any> {
@@ -235,16 +222,13 @@ export default class Model<T = any> {
       schema: this.runtime.validationSchema,
       source: `
         query (
-           ${normal ? `$UpdateInput: ${this.name}_Update_Input,` : ""}
-           $FindOneInput: ${this.name}_Find_Input
+           $update: ${this.name}_Update_Input
         ) {
-            ${this.name}FindOneInput(input: $FindOneInput)
-            ${normal ? `${this.name}UpdateInput(input: $UpdateInput)` : ""}
+            ${this.name}Update(input: $update)
           }
       `,
       variableValues: {
-        FindOneInput: input,
-        ...(normal ? { UpdateInput: normal } : {}),
+        update: normal,
       },
     });
 
@@ -254,7 +238,7 @@ export default class Model<T = any> {
 
     const result = await neo4j.updateOne<T>({
       model: this,
-      query: input,
+      query,
       update: normal,
       set: set,
       options,
@@ -265,34 +249,15 @@ export default class Model<T = any> {
         ? options.selectionSet
         : this.selectionSet;
 
-      const resolve = await graphql({
-        schema: this.runtime.validationSchema,
-        source: `
-          query {
-            ${this.name}UpdateOneOutput${selection}
-          }
-        `,
-        contextValue: {
-          input: result,
-        },
-      });
+      const resolved = await this.outputOne({ selection, result });
 
-      if (resolve.errors) {
-        throw new Error(resolve.errors[0].message);
-      }
-
-      const node = resolve.data[`${this.name}UpdateOneOutput`];
-
-      if (node) {
-        // Trick to remove '[Object: null prototype]'
-        return JSON.parse(JSON.stringify(node));
-      }
+      return resolved;
     }
   }
 
   @Connected
   async updateMany(
-    input: Query,
+    query: Query,
     update: Update,
     options: UpdateManyOptions
   ): Promise<T[]> {
@@ -332,16 +297,13 @@ export default class Model<T = any> {
       schema: this.runtime.validationSchema,
       source: `
         query (
-           ${normal ? `$UpdateInput: ${this.name}_Update_Input,` : ""}
-           $UpdateManyInput: ${this.name}_Find_Input
+           $update: ${this.name}_Update_Input
         ) {
-           ${this.name}FindOneInput(input: $UpdateManyInput)
-           ${normal ? `${this.name}UpdateInput(input: $UpdateInput)` : ""}
+            ${this.name}Update(input: $update)
           }
       `,
       variableValues: {
-        UpdateManyInput: input,
-        ...(normal ? { UpdateInput: normal } : {}),
+        update: normal,
       },
     });
 
@@ -351,7 +313,7 @@ export default class Model<T = any> {
 
     const result = await neo4j.updateMany<T>({
       model: this,
-      query: input,
+      query,
       update: normal,
       set: set,
       options,
@@ -362,130 +324,45 @@ export default class Model<T = any> {
         ? options.selectionSet
         : this.selectionSet;
 
-      const resolve = await graphql({
-        schema: this.runtime.validationSchema,
-        source: `
-          query {
-            ${this.name}UpdateManyOutput${selection}
-          }
-        `,
-        contextValue: {
-          input: result,
-        },
-      });
+      const resolved = await this.outputMany({ selection, result });
 
-      if (resolve.errors) {
-        throw new Error(resolve.errors[0].message);
-      }
-
-      const nodes = resolve.data[`${this.name}UpdateManyOutput`];
-
-      // Trick to remove '[Object: null prototype]'
-      return JSON.parse(JSON.stringify(nodes));
+      return resolved;
     }
   }
 
   @Connected
   async deleteOne(
-    input: Query = {},
+    query: Query = {},
     options: DeleteOneOptions = {}
   ): Promise<T | void> {
-    const validate = await graphql({
-      schema: this.runtime.validationSchema,
-      source: `
-        query ($DeleteOneInput: User_Find_Input!) {
-          ${this.name}DeleteOneInput(input: $DeleteOneInput)
-        }
-      `,
-      variableValues: {
-        DeleteOneInput: input,
-      },
-    });
-
-    if (validate.errors) {
-      throw new Error(validate.errors[0].message);
-    }
-
-    const result = await neo4j.deleteOne<T>({ model: this, input, options });
+    const result = await neo4j.deleteOne<T>({ model: this, query, options });
 
     if (options.return) {
       const selection = options.selectionSet
         ? options.selectionSet
         : this.selectionSet;
 
-      const resolve = await graphql({
-        schema: this.runtime.validationSchema,
-        source: `
-          query {
-            ${this.name}DeleteOneOutput${selection}
-          }
-        `,
-        contextValue: {
-          input: result,
-        },
-      });
+      const resolved = await this.outputOne({ selection, result });
 
-      if (resolve.errors) {
-        throw new Error(resolve.errors[0].message);
-      }
-
-      const node = resolve.data[`${this.name}DeleteOneOutput`];
-
-      if (node) {
-        // Trick to remove '[Object: null prototype]'
-        return JSON.parse(JSON.stringify(node));
-      }
+      return resolved;
     }
   }
 
   @Connected
   async deleteMany(
-    input: Query = {},
+    query: Query = {},
     options: DeleteManyOptions = {}
   ): Promise<T | void> {
-    const validate = await graphql({
-      schema: this.runtime.validationSchema,
-      source: `
-        query ($DeleteManyInput: User_Find_Input!) {
-          ${this.name}DeleteManyInput(input: $DeleteManyInput)
-        }
-      `,
-      variableValues: {
-        DeleteManyInput: input,
-      },
-    });
-
-    if (validate.errors) {
-      throw new Error(validate.errors[0].message);
-    }
-
-    const result = await neo4j.deleteMany<T>({ model: this, input, options });
+    const result = await neo4j.deleteMany<T>({ model: this, query, options });
 
     if (options.return) {
       const selection = options.selectionSet
         ? options.selectionSet
         : this.selectionSet;
 
-      const resolve = await graphql({
-        schema: this.runtime.validationSchema,
-        source: `
-          query {
-            ${this.name}DeleteManyOutput${selection}
-          }
-        `,
-        contextValue: {
-          input: result,
-        },
-      });
+      const resolved = await this.outputMany({ selection, result });
 
-      if (resolve.errors) {
-        throw new Error(resolve.errors[0].message);
-      }
-
-      const nodes = resolve.data[`${this.name}DeleteManyOutput`];
-
-      // Trick to remove '[Object: null prototype]'
-      return JSON.parse(JSON.stringify(nodes));
+      return resolved;
     }
   }
 }

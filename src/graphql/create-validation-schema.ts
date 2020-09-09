@@ -193,11 +193,6 @@ function createValidationSchema(input: { runtime: Runtime }): GraphQLSchema {
     );
 
     compose.createInputTC({
-      name: `${model.name}_Find_Input`,
-      fields: looseInputFields,
-    });
-
-    compose.createInputTC({
       name: `${model.name}_Update_Input`,
       fields: looseInputFields,
     });
@@ -213,74 +208,18 @@ function createValidationSchema(input: { runtime: Runtime }): GraphQLSchema {
     });
 
     compose.Query.addFields({
-      [`${model.name}FindOneInput`]: {
-        type: "Boolean",
-        resolve: () => true,
-        args: {
-          input: `${model.name}_Find_Input`,
-        },
-      },
-      [`${model.name}FindOneOutput`]: {
-        type: model.name,
-        resolve: (root, args, ctx: any) => ctx.input,
-      },
-    });
-
-    compose.Query.addFields({
-      [`${model.name}FindManyInput`]: {
-        type: "Boolean",
-        resolve: () => true,
-        args: {
-          input: `${model.name}_Find_Input`,
-        },
-      },
-      [`${model.name}FindManyOutput`]: {
-        type: `[${model.name}]!`,
-        resolve: (root, args, ctx: any) => ctx.input,
-      },
-    });
-
-    compose.Query.addFields({
-      [`${model.name}DeleteOneInput`]: {
-        type: "Boolean",
-        resolve: () => true,
-        args: {
-          input: `${model.name}_Find_Input`,
-        },
-      },
-      [`${model.name}DeleteOneOutput`]: {
-        type: model.name,
-        resolve: (root, args, ctx: any) => ctx.input,
-      },
-    });
-
-    compose.Query.addFields({
-      [`${model.name}DeleteManyInput`]: {
-        type: "Boolean",
-        resolve: () => true,
-        args: {
-          input: `${model.name}_Find_Input`,
-        },
-      },
-      [`${model.name}DeleteManyOutput`]: {
-        type: `[${model.name}]!`,
-        resolve: (root, args, ctx: any) => ctx.input,
-      },
-    });
-
-    compose.Query.addFields({
-      [`${model.name}UpdateInput`]: {
+      [`${model.name}Update`]: {
         type: "Boolean",
         resolve: () => true,
         args: {
           input: `${model.name}_Update_Input`,
         },
       },
-      [`${model.name}UpdateOneOutput`]: {
+      [`${model.name}OutputOne`]: {
         type: model.name,
         resolve: (root, args, ctx: any) => ctx.input,
       },
-      [`${model.name}UpdateManyOutput`]: {
+      [`${model.name}OutputMany`]: {
         type: `[${model.name}]!`,
         resolve: (root, args, ctx: any) => ctx.input,
       },

@@ -3,10 +3,10 @@ import { SessionOptions, Query } from "../types";
 
 async function findOne<T = any>({
   model,
-  input,
+  query,
 }: {
   model: Model;
-  input: Query;
+  query: Query;
 }): Promise<T> {
   const connection = model.runtime.connection;
 
@@ -18,7 +18,7 @@ async function findOne<T = any>({
 
   const session = connection.driver.session(sessionOptions);
 
-  const keys = Object.keys(input);
+  const keys = Object.keys(query);
 
   function createParams() {
     let params = `{`;
@@ -35,14 +35,14 @@ async function findOne<T = any>({
     return params;
   }
 
-  const query = `
+  const cypher = `
     MATCH (n:${model.name} ${keys.length ? createParams() : ""})
     RETURN n
     LIMIT 1
   `;
 
   try {
-    const result = await session.run(query, { node: input });
+    const result = await session.run(cypher, { node: query });
 
     const node = result.records[0];
 
