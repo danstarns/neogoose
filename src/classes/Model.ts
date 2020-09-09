@@ -11,13 +11,9 @@ import {
   Resolvers,
   CreateOneInput,
   ModelInput,
-  FindOneInput,
   FindOneOptions,
-  FindManyInput,
   FindManyOptions,
-  DeleteOneInput,
   DeleteOneOptions,
-  DeleteManyInput,
   DeleteManyOptions,
   Update,
   UpdateOneOptions,
@@ -101,10 +97,7 @@ export default class Model<T = any> {
   }
 
   @Connected
-  async findOne(
-    input: FindOneInput = {},
-    options: FindOneOptions = {}
-  ): Promise<T> {
+  async findOne(input: Query = {}, options: FindOneOptions = {}): Promise<T> {
     const validate = await graphql({
       schema: this.runtime.validationSchema,
       source: `
@@ -153,7 +146,7 @@ export default class Model<T = any> {
 
   @Connected
   async findMany(
-    input: FindManyInput = {},
+    input: Query = {},
     options: FindManyOptions = {}
   ): Promise<T[]> {
     const validate = await graphql({
@@ -202,7 +195,7 @@ export default class Model<T = any> {
 
   @Connected
   async updateOne(
-    input: FindOneInput,
+    input: Query,
     update: Update,
     options: UpdateOneOptions = {}
   ): Promise<T | any> {
@@ -394,7 +387,7 @@ export default class Model<T = any> {
 
   @Connected
   async deleteOne(
-    input: DeleteOneInput = {},
+    input: Query = {},
     options: DeleteOneOptions = {}
   ): Promise<T | void> {
     const validate = await graphql({
@@ -447,7 +440,7 @@ export default class Model<T = any> {
 
   @Connected
   async deleteMany(
-    input: DeleteManyInput = {},
+    input: Query = {},
     options: DeleteManyOptions = {}
   ): Promise<T | void> {
     const validate = await graphql({

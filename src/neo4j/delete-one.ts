@@ -1,5 +1,5 @@
 import { Model } from "../classes";
-import { DeleteOneInput, DeleteOneOptions, SessionOptions } from "../types";
+import { Query, DeleteOneOptions, SessionOptions } from "../types";
 
 async function deleteOne<T = any>({
   model,
@@ -7,7 +7,7 @@ async function deleteOne<T = any>({
   options,
 }: {
   model: Model;
-  input: DeleteOneInput;
+  input: Query;
   options: DeleteOneOptions;
 }): Promise<T | void> {
   const connection = model.runtime.connection;

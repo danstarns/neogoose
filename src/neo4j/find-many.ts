@@ -1,5 +1,5 @@
 import { Model } from "../classes";
-import { FindManyInput, FindManyOptions, SessionOptions } from "../types";
+import { Query, FindManyOptions, SessionOptions } from "../types";
 
 async function findMany<T = any>({
   model,
@@ -7,7 +7,7 @@ async function findMany<T = any>({
   options,
 }: {
   model: Model;
-  input: FindManyInput;
+  input: Query;
   options: FindManyOptions;
 }): Promise<T[]> {
   const connection = model.runtime.connection;

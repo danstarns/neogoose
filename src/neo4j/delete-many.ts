@@ -1,9 +1,4 @@
-import {
-  Model,
-  DeleteManyInput,
-  DeleteManyOptions,
-  SessionOptions,
-} from "../types";
+import { Model, Query, DeleteManyOptions, SessionOptions } from "../types";
 
 async function deleteMany<T = any>({
   model,
@@ -11,7 +6,7 @@ async function deleteMany<T = any>({
   options,
 }: {
   model: Model;
-  input: DeleteManyInput;
+  input: Query;
   options: DeleteManyOptions;
 }): Promise<T[] | void> {
   const connection = model.runtime.connection;

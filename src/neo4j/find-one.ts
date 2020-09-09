@@ -1,12 +1,12 @@
 import { Model } from "../classes";
-import { FindOneInput, SessionOptions } from "../types";
+import { SessionOptions, Query } from "../types";
 
 async function findOne<T = any>({
   model,
   input,
 }: {
   model: Model;
-  input: FindOneInput;
+  input: Query;
 }): Promise<T> {
   const connection = model.runtime.connection;
 

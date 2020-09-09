@@ -127,13 +127,9 @@ export interface Update {
   [k: string]: any | { $set: { [x: string]: any } };
 }
 
-export type FindOneInput = Query;
-
 export interface FindOneOptions {
   selectionSet?: string;
 }
-
-export type FindManyInput = Query;
 
 export interface FindManyOptions {
   selectionSet?: string;
@@ -141,15 +137,11 @@ export interface FindManyOptions {
   skip?: number;
 }
 
-export type DeleteOneInput = Query;
-
 export interface DeleteOneOptions {
   selectionSet?: string;
   return?: boolean;
   detach?: boolean;
 }
-
-export type DeleteManyInput = Query;
 
 export interface DeleteManyOptions {
   selectionSet?: string;

@@ -1,9 +1,4 @@
-import {
-  Model,
-  FindOneInput,
-  UpdateManyOptions,
-  SessionOptions,
-} from "../types";
+import { Model, Query, UpdateManyOptions, SessionOptions } from "../types";
 
 async function updateMany<T = any>({
   model,
@@ -13,7 +8,7 @@ async function updateMany<T = any>({
   options,
 }: {
   model: Model;
-  query: FindOneInput;
+  query: Query;
   update?: any;
   set?: any;
   options: UpdateManyOptions;

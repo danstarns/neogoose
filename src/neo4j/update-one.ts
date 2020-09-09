@@ -1,9 +1,4 @@
-import {
-  Model,
-  FindOneInput,
-  UpdateOneOptions,
-  SessionOptions,
-} from "../types";
+import { Model, Query, UpdateOneOptions, SessionOptions } from "../types";
 
 async function updateOne<T = any>({
   model,
@@ -13,7 +8,7 @@ async function updateOne<T = any>({
   options,
 }: {
   model: Model;
-  query: FindOneInput;
+  query: Query;
   update?: any;
   set?: any;
   options: UpdateOneOptions;
