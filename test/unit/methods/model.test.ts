@@ -101,34 +101,6 @@ describe("methods/model", () => {
       }
     });
 
-    it("should throw typedefs[Query|Mutation|Subscription] not supported", () => {
-      // @ts-ignore
-      const runtime: Runtime = {
-        models: [],
-        connections: [],
-      };
-
-      ["Query", "Mutation", "Subscription"].forEach((kind) => {
-        try {
-          model(runtime)("User", {
-            typeDefs: `
-              type User {
-                name: String!
-              }
-
-              type ${kind} {
-                test: User
-              }
-            `,
-          });
-
-          throw new Error("I should not throw");
-        } catch (error) {
-          expect(error.message).to.equal(`typeDefs.${kind} not supported`);
-        }
-      });
-    });
-
     it("should throw invalid connection", () => {
       // @ts-ignore
       const runtime: Runtime = {

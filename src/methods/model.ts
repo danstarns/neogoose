@@ -46,14 +46,6 @@ function model<T = any>(runtime: Runtime): CreateOrGetModel {
 
     input.document = document;
 
-    ["Mutation", "Query", "Subscription"].forEach((kind) => {
-      const node = getNodeByName({ document, name: kind });
-
-      if (node) {
-        throw new Error(`typeDefs.${kind} not supported`);
-      }
-    });
-
     const node = getNodeByName({ document, name });
 
     if (!node) {
