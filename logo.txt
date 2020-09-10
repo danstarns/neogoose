@@ -1,0 +1,4 @@
+The logo is a goose with a beer and a necklace similar to the neo4j logo.
+
+Beer icon from https://www.flaticon.com/free-icon/beer-mug_2984118?term=beer&page=1&position=43
+Goose icon from https://www.flaticon.com/free-icon/goose_1421596
