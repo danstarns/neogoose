@@ -1,4 +1,5 @@
 import { Model, Query, UpdateOneOptions, SessionOptions } from "../types";
+import createWhereAndParams from "./create-where-and-params";
 
 async function updateOne<T = any>({
   model,
@@ -23,25 +24,20 @@ async function updateOne<T = any>({
 
   const session = connection.driver.session(sessionOptions);
 
-  const keys = Object.keys(query);
+  let params = { update, set };
+  const match = `MATCH (n:${model.name})`;
+  let where;
 
-  function createParams() {
-    let params = `{`;
+  if (Object.keys(query).length) {
+    const w = createWhereAndParams({ model, query });
 
-    for (let i = 0; i < keys.length; i++) {
-      const k = keys[i];
-      const next = keys[i + 1];
-
-      params += `${k}: $node.${k}${next ? "," : ""}`;
-    }
-
-    params += "}";
-
-    return params;
+    params = { ...params, ...w.params };
+    where = w.where;
   }
 
   const cypher = `
-    MATCH (n:${model.name} ${keys.length ? createParams() : ""})
+    ${match}
+    ${where}
     WITH n LIMIT 1
     ${update ? `SET n = $update` : ""}
     ${set ? `SET n += $set` : ""}
@@ -49,7 +45,7 @@ async function updateOne<T = any>({
   `;
 
   try {
-    const result = await session.run(cypher, { node: query, update, set });
+    const result = await session.run(cypher, params);
 
     if (options.return) {
       const node = result.records[0];
