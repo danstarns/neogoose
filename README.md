@@ -1,11 +1,9 @@
 # neogoose
+Node.js Neo4j OGM inspired by [Mongoose](https://github.com/Automattic/mongoose) & [GraphQL](https://graphql.org/)
+
 ![Node.js CI](https://github.com/danstarns/neogoose/workflows/Node.js%20CI/badge.svg?branch=master&event=push) [![npm version](https://badge.fury.io/js/neogoose.svg)](https://www.npmjs.com/package/neogoose)
 
 [![neogoose](https://github.com/danstarns/neogoose/blob/master/neogoose-banner.png?raw=true)](https://github.com/danstarns/neogoose)
-
-Node.js Neo4j OGM inspired by [Mongoose](https://github.com/Automattic/mongoose) & [GraphQL](https://graphql.org/)
-
-⚠ Work in progress
 
 # TLDR
 Use [GraphQL schema language](https://graphql.org/learn/schema/#type-language) to define `Models`. On `Model` `CRUD` input is validated & output resolved through a generated GraphQL schema. Modularize your [neo4js-graphql-js](https://grandstack.io/docs/neo4j-graphql-js-quickstart) augmented schema with the additional power of an OGM for further database operations.
