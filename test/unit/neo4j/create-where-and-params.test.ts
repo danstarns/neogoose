@@ -96,5 +96,49 @@ describe("neo4j/createWhereAndParams", () => {
         name: query.name,
       });
     });
+
+    it("should return correct where clause and params with $regex", () => {
+      // @ts-ignore
+      const model: Model = {};
+
+      const regex = `(?i)AND.*`;
+
+      const query = {
+        id: {
+          $regex: regex,
+        },
+      };
+
+      const w = createWhereAndParams({ model, query });
+
+      expect(w.where).to.contain("WHERE n.id =~ $node.id");
+
+      expect(w.params.node).to.deep.equal({ id: query.id.$regex.toString() });
+    });
+
+    it("should return correct where clause and params with $regex and 1 other param", () => {
+      // @ts-ignore
+      const model: Model = {};
+
+      const regex = `(?i)AND.*`;
+
+      const query = {
+        name: "Daniel",
+        id: {
+          $regex: regex,
+        },
+      };
+
+      const w = createWhereAndParams({ model, query });
+
+      expect(w.where).to.contain(
+        "WHERE n.name = $node.name AND n.id =~ $node.id"
+      );
+
+      expect(w.params.node).to.deep.equal({
+        id: query.id.$regex,
+        name: query.name,
+      });
+    });
   });
 });

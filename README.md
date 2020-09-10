@@ -126,6 +126,17 @@ const users = await User.findOne({
 });
 ```
 
+#### Regex
+```js
+const users = await User.findOne({
+    name: {
+        $regex: '(?i)d.*' // equal to new Regex("^d", "i")
+    },
+});
+```
+
+⚠ Javascript `Regex` not supported use regex stated [here](https://neo4j.com/docs/cypher-manual/current/clauses/where/#query-where-regex)
+
 ### Skip/Limit
 Used with
 1. `findMany`
