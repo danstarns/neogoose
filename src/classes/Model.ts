@@ -9,7 +9,6 @@ import {
   SessionOptions,
   Runtime,
   Resolvers,
-  CreateOneInput,
   ModelInput,
   FindOneOptions,
   FindManyOptions,
