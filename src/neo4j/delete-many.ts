@@ -8,7 +8,7 @@ async function deleteMany<T = any>({
   model: Model;
   query: Query;
   options: DeleteManyOptions;
-}): Promise<T[] | void> {
+}): Promise<T[]> {
   const connection = model.runtime.connection;
 
   let sessionOptions: SessionOptions = { defaultAccessMode: "WRITE" };

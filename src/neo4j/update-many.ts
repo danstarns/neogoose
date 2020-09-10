@@ -12,7 +12,7 @@ async function updateMany<T = any>({
   update?: any;
   set?: any;
   options: UpdateManyOptions;
-}): Promise<T[] | any> {
+}): Promise<T[]> {
   const connection = model.runtime.connection;
 
   let sessionOptions: SessionOptions = { defaultAccessMode: "WRITE" };

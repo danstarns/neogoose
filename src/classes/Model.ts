@@ -102,7 +102,7 @@ export default class Model<T = any> {
   }: {
     selection: string;
     result: any;
-  }): Promise<T[] | any> {
+  }): Promise<T[]> {
     const resolved = await graphql({
       schema: this.runtime.validationSchema,
       source: `
@@ -260,7 +260,7 @@ export default class Model<T = any> {
     query: Query = {},
     update: Update = {},
     options: UpdateManyOptions = {}
-  ): Promise<T[] | void> {
+  ): Promise<T[]> {
     const fieldNames = this.fields.map((x) => x.name.value);
 
     const { set, normal } = Object.entries(update).reduce(
@@ -352,7 +352,7 @@ export default class Model<T = any> {
   async deleteMany(
     query: Query = {},
     options: DeleteManyOptions = {}
-  ): Promise<T[] | void> {
+  ): Promise<T[]> {
     const result = await neo4j.deleteMany<T>({ model: this, query, options });
 
     if (options.return) {
