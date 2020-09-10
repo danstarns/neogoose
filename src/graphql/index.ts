@@ -4,8 +4,8 @@ import getValidationDirective from "./get-validation-directive";
 import getInputByName from "./get-input-by-name";
 import removeValidationDirective from "./remove-validation-directive";
 import createValidationSchema from "./create-validation-schema";
-import getRelationshipDirective from "./get-relationship-directive";
-import removeRelationshipDirective from "./remove-relationship-directive";
+import getRelationDirective from "./get-relation-directive";
+import removeRelationshipDirective from "./remove-relation-directive";
 import getFieldTypeName from "./get-field-type-name";
 import createNeoGQLSchema from "./create-neo-gql-schema";
 import getNeo4jCypherDirective from "./get-neo4j-gql-cypher-directive";
@@ -18,7 +18,7 @@ export {
   getInputByName,
   removeValidationDirective,
   createValidationSchema,
-  getRelationshipDirective,
+  getRelationDirective,
   removeRelationshipDirective,
   getFieldTypeName,
   createNeoGQLSchema,

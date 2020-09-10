@@ -72,7 +72,7 @@ const User = neogoose.model(
 );
 ```
 
-⚠ Models are not designed to support querying relationships **use a [session](#creating-a-session) for this**. This library is designed to place a `CRUD` api over nodes, with the exemption of [creating relationships](#creating-relationships). You can also create an [Executable schema](#executable-schema) to execute more complex queries.
+⚠ Models are not designed to support querying relationships **use a [session](#creating-a-session) for this**. This library is designed to place a `CRUD` api over nodes. You can also create an [Executable schema](#executable-schema) to execute more complex queries.
 
 ### Creating a session
 ```js
@@ -96,8 +96,7 @@ const schema = neogoose.makeAugmentedSchema();
 ⚠ Transforms made before calling [makeAugmentedSchema](https://grandstack.io/docs/neo4j-graphql-js-quickstart)
 
 1. `constraint` directives removed
-2. `Relationship` directives converted to `relation`, `label` argument converted to `name`
-3. `Validation` directives removed
+2. `Validation` directives removed
 
 ⚠ All other schema directives [here](https://grandstack.io/docs/graphql-schema-directives) are ignored in `neogoose` land
 
@@ -157,10 +156,13 @@ const user = await User.create(
         id: uuid(),
         name: "Dan",
         email: "email@email.com"
+    },
+    {
+        return: true
     }
 );
 
-const users = await User.createMany([ ... ])
+await User.createMany([ ... ])
 ```
 
 ### Find 
@@ -445,113 +447,3 @@ const User = neogoose.model(
 );
 ```
 ⚠ `@constraint` directives are removed before augmented schema generation.
-
-### Creating Relationships
-> Usage of in-built `@Relationship` directive
-
-```js
-const Comment = neogoose.model("Comment", {
-    typeDefs: `
-      type Comment {
-        content: String!
-      }
-    `,
-});
-
-const Post = neogoose.model("Post", {
-    typeDefs: `
-        input PostInput { ⚠ don't specify 'comments' field here.
-          title: String!
-        }   
-
-        type Post @Validation(properties: PostInput){
-          title: String!
-          comments: [Comment] @Relationship(
-              direction: "OUT",
-              label: "COMMENTED"
-          )
-        }
-    `,
-});
-
-const User = neogoose.model("User", {
-    typeDefs: `
-        input UserInput { ⚠ don't specify 'posts' field here.
-            name: String!
-        }
-
-        type User @Validation(properties: UserInput){
-            name: String!
-            posts: [Post] @Relationship(
-                direction: "OUT",
-                label: "POSTED"
-            )
-        }
-    `,
-});
-
-await User.createOne({
-    name: "daniel",
-    posts: [
-      {
-        node: {
-          title: "title",
-          comments: [
-            {
-                node: {
-                    content: "Cool Post",
-                },
-            }
-          ],
-        },
-      },
-    ],
-});
-
-/*
-Generated Cypher query 
-
-CREATE (this:User {name: "daniel"}), (uuidone:Post {title: "title"}), (uuidtwo:Comment {name: "Cool Post"})
-MERGE (this)-[:POSTED]->(uuidone)
-MERGE (uuidone)-[:COMMENTED]->(uuidtwo)
-
-*/
-```
-
-### Relationship Properties
-> Use `properties`, the rules for [Auto Input](#auto-input) applies. 
-
-```js
-const User = neogoose.model(
-    "User",
-    {
-        typeDefs: `
-            input UserPostProperties {
-                date: String!
-            }
-
-            type User {
-                name: String!
-                posts: [Post]! @Relationship(
-                    properties: UserPostProperties,
-                    direction: "OUT",
-                    label: "POSTED"
-                )
-            }
-        `
-    }
-);
-
-const user = await User.create({
-    posts: [
-     { 
-        properties: {
-            date: new Date().toISOString()
-        }, 
-        node: { 
-            title: "COOL 🍻"
-        }
-     }
-    ]
-});
-```

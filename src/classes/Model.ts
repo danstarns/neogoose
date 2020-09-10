@@ -19,6 +19,7 @@ import {
   UpdateOneOptions,
   Query,
   UpdateManyOptions,
+  CreateOptions,
 } from "../types";
 import * as neo4j from "../neo4j";
 
@@ -88,6 +89,10 @@ export default class Model<T = any> {
       },
     });
 
+    if (resolved.errors) {
+      throw new Error(resolved.errors[0].message);
+    }
+
     const node = resolved.data[`${this.name}OutputOne`];
 
     if (node) {
@@ -115,37 +120,84 @@ export default class Model<T = any> {
       },
     });
 
+    if (resolved.errors) {
+      throw new Error(resolved.errors[0].message);
+    }
+
     const nodes = resolved.data[`${this.name}OutputMany`];
 
     // Trick to remove '[Object: null prototype]'
     return JSON.parse(JSON.stringify(nodes));
   }
 
-  // TODO not working
-  @Connected
-  async createOne(input: CreateOneInput): Promise<void> {
-    const { errors } = await graphql({
+  private async inputOne({ params }: { params: any }) {
+    const resolved = await graphql({
       schema: this.runtime.validationSchema,
       source: `
-        query ($CreateOneInput: ${this.name}_Input!) {
-          ${this.name}CreateOneInput(input: $CreateOneInput)
+        query ($input: ${this.name}_Input) {
+          ${this.name}InputOne(input: $input)
         }
       `,
       variableValues: {
-        CreateOneInput: input,
+        input: params,
       },
     });
 
-    if (errors) {
-      throw new Error(errors[0].message);
+    if (resolved.errors) {
+      throw new Error(resolved.errors[0].message);
     }
+  }
 
-    await neo4j.createOne({ model: this, input });
+  private async inputMany({ params }: { params: any }) {
+    const resolved = await graphql({
+      schema: this.runtime.validationSchema,
+      source: `
+        query ($input: [${this.name}_Input]) {
+          ${this.name}InputMany(input: $input)
+        }
+      `,
+      variableValues: {
+        input: params,
+      },
+    });
+
+    if (resolved.errors) {
+      throw new Error(resolved.errors[0].message);
+    }
   }
 
   @Connected
-  createMany(): void {
-    // TODO
+  async createOne(params: any, options: CreateOptions = {}): Promise<T> {
+    await this.inputOne({ params });
+
+    const result = await neo4j.createOne({ model: this, options, params });
+
+    if (options.return) {
+      const selection = options.selectionSet
+        ? options.selectionSet
+        : this.selectionSet;
+
+      const resolved = await this.outputOne({ selection, result });
+
+      return resolved;
+    }
+  }
+
+  @Connected
+  async createMany(params: any[], options: CreateOptions = {}): Promise<T[]> {
+    await this.inputMany({ params });
+
+    const result = await neo4j.createMany({ model: this, options, params });
+
+    if (options.return) {
+      const selection = options.selectionSet
+        ? options.selectionSet
+        : this.selectionSet;
+
+      const resolved = await this.outputMany({ selection, result });
+
+      return resolved;
+    }
   }
 
   @Connected
@@ -222,7 +274,7 @@ export default class Model<T = any> {
       schema: this.runtime.validationSchema,
       source: `
         query (
-           $update: ${this.name}_Update_Input
+           $update: ${this.name}_Input
         ) {
             ${this.name}Update(input: $update)
           }
@@ -297,7 +349,7 @@ export default class Model<T = any> {
       schema: this.runtime.validationSchema,
       source: `
         query (
-           $update: ${this.name}_Update_Input
+           $update: ${this.name}_Input
         ) {
             ${this.name}Update(input: $update)
           }

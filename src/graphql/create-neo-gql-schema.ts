@@ -2,42 +2,12 @@ import {
   GraphQLSchema,
   ObjectTypeExtensionNode,
   ObjectTypeDefinitionNode,
-  DirectiveNode,
   print,
   DocumentNode,
 } from "graphql";
 import { Runtime, AugmentOptions } from "../types";
 import { makeAugmentedSchema } from "neo4j-graphql-js";
 import { mergeResolvers, mergeTypeDefs } from "@graphql-tools/merge";
-
-function transformDirectiveToNeo4jGQL(directive: DirectiveNode): DirectiveNode {
-  if (directive.name.value === "Relationship") {
-    return {
-      ...directive,
-      name: {
-        ...directive.name,
-        value: "relation",
-      },
-      arguments: directive.arguments
-        .filter((arg) => arg.name.value !== "properties")
-        .map((arg) => {
-          if (arg.name.value === "label") {
-            return {
-              ...arg,
-              name: {
-                ...arg.name,
-                value: "name",
-              },
-            };
-          }
-
-          return arg;
-        }),
-    };
-  }
-
-  return directive;
-}
 
 function transformDefinitionToNeo4jGQL(
   definition: ObjectTypeDefinitionNode | ObjectTypeExtensionNode
@@ -46,9 +16,7 @@ function transformDefinitionToNeo4jGQL(
     ...definition,
     fields: definition.fields.map((field) => ({
       ...field,
-      directives: field.directives
-        .map(transformDirectiveToNeo4jGQL)
-        .filter((x) => x.name.value !== "constraint"),
+      directives: field.directives.filter((x) => x.name.value !== "constraint"),
     })),
     directives: definition.directives.filter(
       (directive) => directive.name.value !== "Validation"

@@ -5,7 +5,7 @@ import {
   getNodeByName,
   getValidationDirective,
   getInputByName,
-  getRelationshipDirective,
+  getRelationDirective,
   getNeo4jCypherDirective,
   getFieldTypeName,
 } from "../graphql";
@@ -85,7 +85,7 @@ function model<T = any>(runtime: Runtime): CreateOrGetModel {
 
     const { relations, fields, cyphers, nested } = node.fields.reduce(
       (res, field) => {
-        const relationshipDirective = getRelationshipDirective(field);
+        const relationshipDirective = getRelationDirective(field);
         const cypherDirective = getNeo4jCypherDirective(field);
         const isNested = documentReferenceNames.includes(
           getFieldTypeName(field).name

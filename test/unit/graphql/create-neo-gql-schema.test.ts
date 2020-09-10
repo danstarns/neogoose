@@ -39,7 +39,7 @@ describe("graphql/createNeoGQLSchema", () => {
             title: String @id
             year: Int
             imdbRating: Float
-            genres: [Genre] @Relationship(label: "IN_GENRE", direction: "OUT", properties: MovieGenres)
+            genres: [Genre] @relation(name: "IN_GENRE", direction: "OUT")
             test: [Movie] @cypher
           }
         `,
@@ -49,7 +49,7 @@ describe("graphql/createNeoGQLSchema", () => {
         typeDefs: `
           type Genre {
             name: String
-            movies: [Movie] @Relationship(label: "IN_GENRE", direction: "IN")
+            movies: [Movie] @relation(name: "IN_GENRE", direction: "IN")
           }
         `,
       });
@@ -58,7 +58,6 @@ describe("graphql/createNeoGQLSchema", () => {
 
       const printed = printSchema(_createNeoGQLSchema);
 
-      expect(printed).to.not.include("@Relationship");
       expect(printed).to.not.include("@Validation");
       expect(printed).to.include("Movie");
       expect(printed).to.include("AddMovieGenres");

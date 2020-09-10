@@ -1,14 +1,14 @@
 import { expect } from "chai";
 import { describe } from "mocha";
-import getRelationshipDirective from "../../../src/graphql/get-relationship-directive";
+import getRelationDirective from "../../../src/graphql/get-relation-directive";
 import { parse, ObjectTypeDefinitionNode } from "graphql";
 
-describe("graphql/getRelationshipDirective", () => {
+describe("graphql/getRelationDirective", () => {
   describe("functionality", () => {
     it("should return the validation directive", () => {
       const typeDefs = `
             type User {
-                name: string! @Relationship(properties: UserPostCreatedProperties)
+                name: string! @relation
             }
           `;
 
@@ -20,10 +20,10 @@ describe("graphql/getRelationshipDirective", () => {
 
       const field = node.fields.find((field) => field.name.value === "name");
 
-      const directive = getRelationshipDirective(field);
+      const directive = getRelationDirective(field);
 
       expect(directive.kind).to.equal("Directive");
-      expect(directive.name.value).to.equal("Relationship");
+      expect(directive.name.value).to.equal("relation");
     });
   });
 });

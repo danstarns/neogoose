@@ -127,6 +127,11 @@ export interface Update {
   [k: string]: any | { $set: { [x: string]: any } };
 }
 
+export interface CreateOptions {
+  selectionSet?: string;
+  return?: boolean;
+}
+
 export interface FindOneOptions {
   selectionSet?: string;
 }

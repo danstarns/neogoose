@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment */
 import { expect } from "chai";
 import { describe } from "mocha";
-import removeRelationshipDirective from "../../../src/graphql/remove-relationship-directive";
+import removeRelationshipDirective from "../../../src/graphql/remove-relation-directive";
 import { parse, print, ObjectTypeDefinitionNode } from "graphql";
 
 describe("graphql/removeRelationshipDirective", () => {
@@ -9,7 +9,7 @@ describe("graphql/removeRelationshipDirective", () => {
     it("should remove relationship directive", () => {
       const typeDefs = `
             type User {
-                name: String! @Relationship @Relationship
+                name: String! @relation @relation
             }
           `;
 
@@ -17,10 +17,10 @@ describe("graphql/removeRelationshipDirective", () => {
 
       const node = document.definitions[0] as ObjectTypeDefinitionNode;
 
-      removeRelationshipDirective(node);
+      const n = removeRelationshipDirective(node);
 
-      expect(print({ kind: "Document", definitions: [node] })).to.not.include(
-        "@Validation"
+      expect(print({ kind: "Document", definitions: [n] })).to.not.include(
+        "@relation"
       );
     });
   });

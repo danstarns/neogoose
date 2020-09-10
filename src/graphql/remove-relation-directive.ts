@@ -7,9 +7,7 @@ function removeRelationshipDirective(
     ...node,
     fields: node.fields.map((field) => ({
       ...field,
-      directives: field.directives.filter(
-        (x) => x.name.value !== "Relationship"
-      ),
+      directives: field.directives.filter((x) => x.name.value !== "relation"),
     })),
   };
 }

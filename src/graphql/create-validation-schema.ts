@@ -1,13 +1,7 @@
 import { GraphQLSchema, print } from "graphql";
-import { getInputByName, getFieldTypeName } from "../graphql";
 import { Runtime } from "../types";
 import { Model } from "../classes";
-import getRelationshipDirective from "./get-relationship-directive";
-import {
-  ObjectTypeComposer,
-  SchemaComposer,
-  ComposeOutputType,
-} from "graphql-compose";
+import { ObjectTypeComposer, SchemaComposer } from "graphql-compose";
 import {
   constraintDirective,
   constraintDirectiveTypeDefs,
@@ -91,18 +85,6 @@ function createValidationSchema(input: { runtime: Runtime }): GraphQLSchema {
       };
     }, {});
 
-    const composeRelationFields = model.relations.reduce((res, f) => {
-      const name = f.name.value;
-      const type = getFieldTypeName(f).prettyBy(`${model.name}_${name}_Input`);
-
-      return {
-        ...res,
-        [name]: {
-          type,
-        },
-      };
-    }, {});
-
     if (model.properties) {
       const name = model.properties.name.value;
 
@@ -111,98 +93,29 @@ function createValidationSchema(input: { runtime: Runtime }): GraphQLSchema {
         definitions: [model.properties],
       });
 
-      const inp = compose.createInputTC(
-        typeDefs.replace(name, `${model.name}_Input`)
-      );
-
-      inp.addFields(composeRelationFields);
+      compose.createInputTC(typeDefs.replace(name, `${model.name}_Input`));
     } else {
       compose.createInputTC({
         name: `${model.name}_Input`,
         fields: {
           ...composeFields,
-          ...composeRelationFields,
         },
       });
     }
 
-    model.relations.forEach((field) => {
-      const referenceModel = input.runtime.models.find(
-        (x) => x.name === getFieldTypeName(field).name
-      );
-
-      createNode(referenceModel);
-
-      const directive = getRelationshipDirective(field);
-
-      const propertiesArgument = directive.arguments.find(
-        (x) => x.name.value === "properties"
-      );
-
-      if (propertiesArgument) {
-        // @ts-ignore
-        const name = propertiesArgument.value?.value;
-
-        const propertiesInput = getInputByName({
-          document: model.document,
-          name: name,
-        });
-
-        if (!propertiesInput) {
-          throw new Error(
-            `${model.name}.${field.name.value} @Relationship(properties: ${name}) ${name} not found`
-          );
-        }
-
-        const typeDefs = print({
-          kind: "Document",
-          definitions: [propertiesInput],
-        });
-
-        compose.createInputTC(
-          typeDefs.replace(name, `${model.name}_${field.name.value}_Properties`)
-        );
-
-        compose.createInputTC({
-          name: `${model.name}_${field.name.value}_Input`,
-          fields: {
-            properties: {
-              type: `${model.name}_${field.name.value}_Properties`,
-            },
-            node: { type: `${referenceModel.name}_Input` },
-          },
-        });
-      } else {
-        compose.createInputTC({
-          name: `${model.name}_${field.name.value}_Input`,
-          fields: {
-            node: {
-              type: `${referenceModel.name}_Input`,
-            },
-          },
-        });
-      }
-    });
-
-    const looseInputFields = Object.entries(composeFields).reduce(
-      (res, [k, v]: [string, { type: ComposeOutputType<any> }]) => ({
-        ...res,
-        [k]: { type: v.type.getTypeName().replace(/!/g, "") },
-      }),
-      {}
-    );
-
-    compose.createInputTC({
-      name: `${model.name}_Update_Input`,
-      fields: looseInputFields,
-    });
-
     compose.Query.addFields({
-      [`${model.name}CreateOneInput`]: {
+      [`${model.name}InputOne`]: {
         type: "Boolean",
         resolve: () => true,
         args: {
-          input: `${model.name}_Input!`,
+          input: `${model.name}_Input`,
+        },
+      },
+      [`${model.name}InputMany`]: {
+        type: "Boolean",
+        resolve: () => true,
+        args: {
+          input: `[${model.name}_Input]`,
         },
       },
     });
@@ -212,7 +125,7 @@ function createValidationSchema(input: { runtime: Runtime }): GraphQLSchema {
         type: "Boolean",
         resolve: () => true,
         args: {
-          input: `${model.name}_Update_Input`,
+          input: `${model.name}_Input`,
         },
       },
       [`${model.name}OutputOne`]: {

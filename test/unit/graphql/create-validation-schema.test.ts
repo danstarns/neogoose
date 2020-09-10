@@ -42,8 +42,8 @@ describe("graphql/createValidationSchema", () => {
 
           type User @Validation(properties: UserProperties) {
             name: String! @id
-            posts: [Post]! @Relationship(properties: UserPostProperties)
-            mates: [User!] @Relationship(properties: UserPostProperties)
+            posts: [Post]! @relation(name: "test")
+            mates: [User!] @relation(name: "test")
             nested: Nested
             date: DateTime
             test: [Post] @cypher
@@ -55,7 +55,7 @@ describe("graphql/createValidationSchema", () => {
         typeDefs: `   
           type Post {
             name: String!
-            users: [User] @Relationship
+            users: [User] @relation(name: "test")
           }
         `,
       });
@@ -66,18 +66,11 @@ describe("graphql/createValidationSchema", () => {
 
       expect(printed).to.not.contain("@id");
       expect(printed).to.not.contain("@cypher");
-      expect(printed).to.not.contain("@Relationship");
       expect(printed).to.not.contain("@cypher");
       expect(printed).to.not.contain("@Validation");
 
-      expect(printed).to.include("input User_posts_Properties");
-      expect(printed).to.include("input User_posts_Input");
-      expect(printed).to.include("input User_mates_Properties");
-      expect(printed).to.include("input User_mates_Input");
       expect(printed).to.include("input User_Input");
       expect(printed).to.include("type User");
-      expect(printed).to.include("input Post_users_Input");
-      expect(printed).to.include("input Post_Input");
       expect(printed).to.include("type Post");
       expect(printed).to.include("type Nested");
       expect(printed).to.include("scalar DateTime");
