@@ -55,4 +55,58 @@ describe("findMany", () => {
       session.close();
     }
   });
+
+  it("should findMany $in ids", async () => {
+    const id1 = generate({
+      charset: "alphabetic",
+    });
+    const id2 = generate({
+      charset: "alphabetic",
+    });
+    const id3 = generate({
+      charset: "alphabetic",
+    });
+
+    const session = driver.session({ defaultAccessMode: "WRITE" });
+
+    const createCypher = `
+        CREATE (:User {id: $id1}), (:User {id: $id2}), (:User {id: $id2})
+    `;
+
+    try {
+      await session.run(createCypher, {
+        id1,
+        id3,
+        id2,
+      });
+
+      const found = await User.findMany({ id: { $in: [id1, id2, id3] } });
+
+      expect(found.length).to.equal(3);
+
+      found.forEach((node) => {
+        expect(node.id).to.be.oneOf([id1, id2, id3]);
+      });
+
+      const deleteCypher = `
+        MATCH (n:User)
+        WHERE n.id IN [$id1, $id2, $id3]
+        DELETE n
+      `;
+
+      await session.run(deleteCypher, {
+        id1,
+        id3,
+        id2,
+      });
+
+      const reFind = await User.findMany({ id: { $in: [id1, id2, id3] } });
+
+      expect(reFind.length).to.equal(0);
+    } catch (error) {
+      throw error;
+    } finally {
+      session.close();
+    }
+  });
 });

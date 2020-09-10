@@ -48,5 +48,53 @@ describe("neo4j/createWhereAndParams", () => {
 
       expect(w.params.node).to.deep.equal(query);
     });
+
+    it("should return correct where clause and params with $in", () => {
+      // @ts-ignore
+      const model: Model = {};
+
+      const id = generate({
+        charset: "alphabetic",
+      });
+
+      const query = {
+        id: {
+          $in: [id],
+        },
+      };
+
+      const w = createWhereAndParams({ model, query });
+
+      expect(w.where).to.contain("WHERE n.id IN $node.id");
+
+      expect(w.params.node).to.deep.equal({ id: query.id.$in });
+    });
+
+    it("should return correct where clause and params with $in and 1 other param", () => {
+      // @ts-ignore
+      const model: Model = {};
+
+      const id = generate({
+        charset: "alphabetic",
+      });
+
+      const query = {
+        name: "Daniel",
+        id: {
+          $in: [id],
+        },
+      };
+
+      const w = createWhereAndParams({ model, query });
+
+      expect(w.where).to.contain(
+        "WHERE n.name = $node.name AND n.id IN $node.id"
+      );
+
+      expect(w.params.node).to.deep.equal({
+        id: query.id.$in,
+        name: query.name,
+      });
+    });
   });
 });

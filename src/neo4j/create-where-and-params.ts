@@ -20,9 +20,13 @@ function createWhereAndParams({
     const v = query[k];
     const next = keys[i + 1];
 
-    where = where + ` n.${k} = $node.${k} ${next ? "AND" : ""}`;
-
-    params.node[k] = v;
+    if (v.$in) {
+      where = where + ` n.${k} IN $node.${k} ${next ? "AND" : ""}`;
+      params.node[k] = v.$in;
+    } else {
+      where = where + ` n.${k} = $node.${k} ${next ? "AND" : ""}`;
+      params.node[k] = v;
+    }
   }
 
   return {

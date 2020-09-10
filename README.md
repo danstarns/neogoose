@@ -110,13 +110,21 @@ Used with
 5. `deleteOne`
 6. `deleteMany`
 
+#### Equality
 ```js
 const dan = await User.findOne({
     name: "Dan",
 });
 ```
 
-⚠ Currently there is **only support** for querying simple key/value equality.
+#### $in
+```js
+const users = await User.findOne({
+    name: {
+        $in: ["dan", "daniel"]
+    },
+});
+```
 
 ### Skip/Limit
 Used with
