@@ -1,4 +1,5 @@
 import { Model, Query, DeleteManyOptions, SessionOptions } from "../types";
+import createWhereAndParams from "./create-where-and-params";
 
 async function deleteMany<T = any>({
   model,
@@ -19,35 +20,30 @@ async function deleteMany<T = any>({
 
   const session = connection.driver.session(sessionOptions);
 
-  const keys = Object.keys(query);
+  let params = {};
+  const match = `MATCH (n:${model.name})`;
+  let where;
 
-  function createParams() {
-    let params = `{`;
+  const skip = `${options.skip ? `SKIP ${options.skip}` : ""}`;
+  const limit = `${options.limit ? `LIMIT ${options.limit}` : ""}`;
 
-    for (let i = 0; i < keys.length; i++) {
-      const k = keys[i];
-      const next = keys[i + 1];
+  if (Object.keys(query).length) {
+    const w = createWhereAndParams({ model, query });
 
-      params += `${k}: $node.${k}${next ? "," : ""}`;
-    }
-
-    params += "}";
-
-    return params;
+    params = { ...params, ...w.params };
+    where = w.where;
   }
 
-  const limit = options.limit ? `LIMIT ${options.limit}` : "";
-  const skip = options.skip ? `SKIP ${options.skip}` : "";
-
   const cypher = `
-    MATCH (n:${model.name} ${keys.length ? createParams() : ""})
+    ${match}
+    ${where}
     WITH n ${skip} ${limit}
     ${options.detach ? "DETACH" : ""} DELETE n
     ${options.return ? "RETURN n" : ""}
   `;
 
   try {
-    const result = await session.run(cypher, { node: query });
+    const result = await session.run(cypher, params);
 
     if (options.return) {
       return result.records.map((record) => record.get("n").properties);
