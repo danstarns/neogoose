@@ -201,8 +201,6 @@ const user = await User.updateOne(
 );
 ```
 
-⚠ Currently there is no support for updating relationships.
-
 #### Using $set
 > Regular update will replace all properties use `$set` to `+=` properties on the node
 
