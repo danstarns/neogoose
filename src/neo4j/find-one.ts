@@ -23,7 +23,6 @@ async function findOne<T = any>({
   const match = `MATCH (n:${model.name})`;
   let where;
   const pagination = `
-    RETURN n
     LIMIT 1
   `;
 
@@ -37,6 +36,7 @@ async function findOne<T = any>({
   const cypher = `
     ${match}
     ${where}
+    RETURN n
     ${pagination}
   `;
 
