@@ -1,5 +1,5 @@
 import { Model } from "../classes";
-import { Query, DeleteOneOptions, SessionOptions } from "../types";
+import { Query, DeleteOneOptions } from "../types";
 import createWhereAndParams from "./create-where-and-params";
 
 async function deleteOne<T = any>({
@@ -11,15 +11,7 @@ async function deleteOne<T = any>({
   query: Query;
   options: DeleteOneOptions;
 }): Promise<T | void> {
-  const connection = model.runtime.connection;
-
-  let sessionOptions: SessionOptions = { defaultAccessMode: "WRITE" };
-
-  if (model.sessionOptions) {
-    sessionOptions = model.sessionOptions;
-  }
-
-  const session = connection.driver.session(sessionOptions);
+  const session = model.getSession("WRITE");
 
   let params = {};
   const match = `MATCH (n:${model.name})`;

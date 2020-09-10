@@ -1,5 +1,5 @@
 import { Model } from "../classes";
-import { Query, FindManyOptions, SessionOptions } from "../types";
+import { Query, FindManyOptions } from "../types";
 import createWhereAndParams from "./create-where-and-params";
 
 async function findMany<T = any>({
@@ -11,15 +11,7 @@ async function findMany<T = any>({
   query: Query;
   options: FindManyOptions;
 }): Promise<T[]> {
-  const connection = model.runtime.connection;
-
-  let sessionOptions: SessionOptions = { defaultAccessMode: "READ" };
-
-  if (model.sessionOptions) {
-    sessionOptions = model.sessionOptions;
-  }
-
-  const session = connection.driver.session(sessionOptions);
+  const session = model.getSession("READ");
 
   let params = {};
   const match = `MATCH (n:${model.name})`;

@@ -1,5 +1,5 @@
 import { Model } from "../classes";
-import { SessionOptions, Query } from "../types";
+import { Query } from "../types";
 import createWhereAndParams from "./create-where-and-params";
 
 async function findOne<T = any>({
@@ -9,15 +9,7 @@ async function findOne<T = any>({
   model: Model;
   query: Query;
 }): Promise<T> {
-  const connection = model.runtime.connection;
-
-  let sessionOptions: SessionOptions = { defaultAccessMode: "READ" };
-
-  if (model.sessionOptions) {
-    sessionOptions = model.sessionOptions;
-  }
-
-  const session = connection.driver.session(sessionOptions);
+  const session = model.getSession("READ");
 
   let params = {};
   const match = `MATCH (n:${model.name})`;

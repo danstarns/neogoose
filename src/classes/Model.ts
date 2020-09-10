@@ -21,6 +21,8 @@ import {
   CreateOptions,
 } from "../types";
 import * as neo4j from "../neo4j";
+import { Session } from "neo4j-driver";
+import Connection from "./Connection";
 
 function Connected(
   target: any,
@@ -52,6 +54,7 @@ export default class Model<T = any> {
   public properties?: InputObjectTypeDefinitionNode;
   public resolvers?: Resolvers;
   public selectionSet?: string;
+  public connection?: Connection;
   public runtime: Runtime;
 
   constructor(input: ModelInput) {
@@ -66,7 +69,26 @@ export default class Model<T = any> {
     this.cyphers = input.cyphers;
     this.fields = input.fields;
     this.nested = input.nested;
+    this.connection = input.connection;
     this.selectionSet = input.selectionSet;
+  }
+
+  public getSession(type: "WRITE" | "READ"): Session {
+    let connection: Connection;
+
+    if (this.connection) {
+      connection = this.connection;
+    } else {
+      connection = this.runtime.connection;
+    }
+
+    let sessionOptions: SessionOptions = { defaultAccessMode: type };
+
+    if (this.sessionOptions) {
+      sessionOptions = this.sessionOptions;
+    }
+
+    return connection.driver.session(sessionOptions);
   }
 
   private async outputOne({

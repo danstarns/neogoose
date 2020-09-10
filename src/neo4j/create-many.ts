@@ -1,5 +1,5 @@
 import { Model } from "../classes";
-import { SessionOptions, CreateOptions } from "../types";
+import { CreateOptions } from "../types";
 import { generate } from "randomstring";
 
 async function createMany<T = any>({
@@ -11,15 +11,7 @@ async function createMany<T = any>({
   options: CreateOptions;
   params: any[];
 }): Promise<T[]> {
-  const connection = model.runtime.connection;
-
-  let sessionOptions: SessionOptions = { defaultAccessMode: "WRITE" };
-
-  if (model.sessionOptions) {
-    sessionOptions = model.sessionOptions;
-  }
-
-  const session = connection.driver.session(sessionOptions);
+  const session = model.getSession("WRITE");
 
   if (!params.length) {
     return;

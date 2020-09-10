@@ -1,5 +1,5 @@
 import { Model } from "../classes";
-import { SessionOptions, CreateOptions } from "../types";
+import { CreateOptions } from "../types";
 
 async function createOne<T = any>({
   model,
@@ -10,15 +10,7 @@ async function createOne<T = any>({
   options: CreateOptions;
   params: any;
 }): Promise<T> {
-  const connection = model.runtime.connection;
-
-  let sessionOptions: SessionOptions = { defaultAccessMode: "WRITE" };
-
-  if (model.sessionOptions) {
-    sessionOptions = model.sessionOptions;
-  }
-
-  const session = connection.driver.session(sessionOptions);
+  const session = model.getSession("WRITE");
 
   const keys = Object.keys(params);
 

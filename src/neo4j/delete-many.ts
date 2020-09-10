@@ -1,4 +1,4 @@
-import { Model, Query, DeleteManyOptions, SessionOptions } from "../types";
+import { Model, Query, DeleteManyOptions } from "../types";
 import createWhereAndParams from "./create-where-and-params";
 
 async function deleteMany<T = any>({
@@ -10,15 +10,7 @@ async function deleteMany<T = any>({
   query: Query;
   options: DeleteManyOptions;
 }): Promise<T[]> {
-  const connection = model.runtime.connection;
-
-  let sessionOptions: SessionOptions = { defaultAccessMode: "WRITE" };
-
-  if (model.sessionOptions) {
-    sessionOptions = model.sessionOptions;
-  }
-
-  const session = connection.driver.session(sessionOptions);
+  const session = model.getSession("WRITE");
 
   let params = {};
   const match = `MATCH (n:${model.name})`;
