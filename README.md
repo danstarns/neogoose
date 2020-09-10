@@ -1,6 +1,8 @@
 # neogoose
 ![Node.js CI](https://github.com/danstarns/neogoose/workflows/Node.js%20CI/badge.svg?branch=master&event=push) [![npm version](https://badge.fury.io/js/neogoose.svg)](https://www.npmjs.com/package/neogoose)
 
+[![neogoose](./neogoose-banner.png)](https://github.com/danstarns/neogoose)
+
 Node.js Neo4j OGM inspired by [Mongoose](https://github.com/Automattic/mongoose) & [GraphQL](https://graphql.org/)
 
 ⚠ Work in progress
@@ -93,7 +95,7 @@ const user = neogoose.model("User");
 const schema = neogoose.makeAugmentedSchema();
 ```
 
-⚠ Transforms made before calling [makeAugmentedSchema](https://grandstack.io/docs/neo4j-graphql-js-quickstart)
+Transforms made before calling [makeAugmentedSchema](https://grandstack.io/docs/neo4j-graphql-js-quickstart)
 
 1. `constraint` directives removed
 2. `Validation` directives removed
@@ -118,7 +120,7 @@ const dan = await User.findOne({
 
 #### $in
 ```js
-const users = await User.findOne({
+const users = await User.findMany({
     name: {
         $in: ["dan", "daniel"]
     },
@@ -127,7 +129,7 @@ const users = await User.findOne({
 
 #### Regex
 ```js
-const users = await User.findOne({
+const users = await User.findMany({
     name: {
         $regex: '(?i)d.*' // equal to new Regex("^d", "i")
     },
@@ -143,7 +145,10 @@ Used with
 3. `deleteMany`
 
 ```js
-const paginatedUsers = await User.findMany(query, { skip: 30, limit: 10 });
+const paginatedUsers = await User.findMany(
+    query,
+    { skip: 30, limit: 10 }
+);
 ```
 
 ### Creating
@@ -444,4 +449,5 @@ const User = neogoose.model(
     }
 );
 ```
+
 ⚠ `@constraint` directives are removed before augmented schema generation.
