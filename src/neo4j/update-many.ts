@@ -1,4 +1,5 @@
 import { Model, Query, UpdateManyOptions, SessionOptions } from "../types";
+import createWhereAndParams from "./create-where-and-params";
 
 async function updateMany<T = any>({
   model,
@@ -23,28 +24,23 @@ async function updateMany<T = any>({
 
   const session = connection.driver.session(sessionOptions);
 
-  const keys = Object.keys(query);
-
-  function createParams() {
-    let params = `{`;
-
-    for (let i = 0; i < keys.length; i++) {
-      const k = keys[i];
-      const next = keys[i + 1];
-
-      params += `${k}: $node.${k}${next ? "," : ""}`;
-    }
-
-    params += "}";
-
-    return params;
-  }
+  let params = { update, set };
+  const match = `MATCH (n:${model.name})`;
+  let where;
 
   const skip = `${options.skip ? `SKIP ${options.skip}` : ""}`;
   const limit = `${options.limit ? `LIMIT ${options.limit}` : ""}`;
 
+  if (Object.keys(query).length) {
+    const w = createWhereAndParams({ model, query });
+
+    params = { ...params, ...w.params };
+    where = w.where;
+  }
+
   const cypher = `
-    MATCH (n:${model.name} ${keys.length ? createParams() : ""})
+    ${match}
+    ${where}
     WITH n ${skip} ${limit}
     ${update ? `SET n = $update` : ""}
     ${set ? `SET n += $set` : ""}
@@ -52,7 +48,7 @@ async function updateMany<T = any>({
   `;
 
   try {
-    const result = await session.run(cypher, { node: query, update, set });
+    const result = await session.run(cypher, params);
 
     if (options.return) {
       return result.records.map((record) => record.get("n").properties);
