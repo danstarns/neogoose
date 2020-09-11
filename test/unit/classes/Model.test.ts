@@ -30,6 +30,7 @@ describe("classes/Model", () => {
       expect(model).to.have.property("updateMany").to.be.a("function");
       expect(model).to.have.property("deleteOne").to.be.a("function");
       expect(model).to.have.property("deleteMany").to.be.a("function");
+      expect(model).to.have.property("count").to.be.a("function");
     });
   });
 });

@@ -8,6 +8,7 @@ import deleteOne from "./delete-one";
 import deleteMany from "./delete-many";
 import connect from "./connect";
 import createWhereAndParams from "./create-where-and-params";
+import count from "./count";
 
 export {
   createOne,
@@ -20,4 +21,5 @@ export {
   deleteMany,
   connect,
   createWhereAndParams,
+  count,
 };

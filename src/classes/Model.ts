@@ -438,4 +438,11 @@ export default class Model<T = any> {
       return resolved;
     }
   }
+
+  @Connected
+  async count(query: Query = {}): Promise<number> {
+    const result = await neo4j.count({ model: this, query });
+
+    return result;
+  }
 }
