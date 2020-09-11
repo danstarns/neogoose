@@ -13,7 +13,7 @@ async function updateOne<T = any>({
   update?: any;
   set?: any;
   options: UpdateOneOptions;
-}): Promise<T | any> {
+}): Promise<T> {
   const session = model.getSession("WRITE");
 
   let params = { update, set };

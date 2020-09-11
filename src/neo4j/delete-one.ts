@@ -10,7 +10,7 @@ async function deleteOne<T = any>({
   model: Model;
   query: Query;
   options: DeleteOneOptions;
-}): Promise<T | void> {
+}): Promise<T> {
   const session = model.getSession("WRITE");
 
   let params = {};
