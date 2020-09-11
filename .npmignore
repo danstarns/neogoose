@@ -1,0 +1,14 @@
+
+.circleci/
+.github/
+src/
+test/
+eslintrc.js
+CONTRIBUTING.md
+docker-compose.integration.test.yml
+Dockerfile.integration.test
+logo.txt
+neogoose.pdn
+neogoose.png
+neogoose-banner.png
+tsconfig.json
