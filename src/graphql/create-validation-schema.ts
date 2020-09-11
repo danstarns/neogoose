@@ -149,7 +149,21 @@ function createValidationSchema(input: { runtime: Runtime }): GraphQLSchema {
   const schema = makeExecutableSchema({
     typeDefs: mergeTypeDefs([constraintDirectiveTypeDefs, typeDefs]),
     resolvers: mergeResolvers([
-      ...input.runtime.models.map((x) => x.resolvers).filter(Boolean),
+      ...input.runtime.models
+        .map((x) => {
+          if (!x.resolvers) {
+            return false;
+          }
+
+          return Object.entries(x.resolvers).reduce(
+            (r, [k, v]) =>
+              !["Query", "Mutation", "Subscription"].includes(k)
+                ? { ...r, [k]: v }
+                : r,
+            {}
+          );
+        })
+        .filter(Boolean),
       resolvers,
     ]),
     schemaTransforms: [constraintDirective()],

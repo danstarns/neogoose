@@ -42,6 +42,10 @@ describe("graphql/createNeoGQLSchema", () => {
             genres: [Genre] @relation(name: "IN_GENRE", direction: "OUT")
             test: [Movie] @cypher
           }
+
+          type Query {
+            abc: String @cypher
+          }
         `,
       });
 
@@ -50,6 +54,10 @@ describe("graphql/createNeoGQLSchema", () => {
           type Genre {
             name: String
             movies: [Movie] @relation(name: "IN_GENRE", direction: "IN")
+          }
+
+          type Mutation {
+            cba: String
           }
         `,
       });

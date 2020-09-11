@@ -58,6 +58,11 @@ describe("graphql/createValidationSchema", () => {
             users: [User] @relation(name: "test")
           }
         `,
+        resolvers: {
+          Query: {
+            notReal: () => true,
+          },
+        },
       });
 
       const schema = createValidationSchema({ runtime });
