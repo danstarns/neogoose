@@ -34,7 +34,7 @@ function Connected(
   descriptor.value = function (...args: any[]) {
     const model: Model = this;
 
-    if (!model.runtime.connection) {
+    if (!model.runtime.connection && !model.connection) {
       throw new Error("Not connected");
     }
 
@@ -258,7 +258,7 @@ export default class Model<T = any> {
     query: Query = {},
     update: Update = {},
     options: UpdateOneOptions = {}
-  ): Promise<T | any> {
+  ): Promise<T> {
     const fieldNames = this.fields.map((x) => x.name.value);
 
     const { set, normal } = Object.entries(update).reduce(
@@ -407,7 +407,7 @@ export default class Model<T = any> {
   async deleteOne(
     query: Query = {},
     options: DeleteOneOptions = {}
-  ): Promise<T | void> {
+  ): Promise<T> {
     const result = await neo4j.deleteOne<T>({ model: this, query, options });
 
     if (options.return) {
