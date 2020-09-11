@@ -6,7 +6,7 @@ Node.js Neo4j OGM inspired by [Mongoose](https://github.com/Automattic/mongoose)
 [![neogoose](https://github.com/danstarns/neogoose/blob/master/neogoose-banner.png?raw=true)](https://github.com/danstarns/neogoose)
 
 # TLDR
-Use [GraphQL schema language](https://graphql.org/learn/schema/#type-language) to define `Models`. On `Model` `CRUD` input is validated & output resolved through a generated GraphQL schema. Modularize your [neo4js-graphql-js](https://grandstack.io/docs/neo4j-graphql-js-quickstart) augmented schema with the additional power of an OGM for further database operations.
+Use [GraphQL schema language](https://graphql.org/learn/schema/#type-language) to define Models. On Model `CRUD` input validated & output resolved through a generated GraphQL schema. Modularize your [neo4js-graphql-js](https://grandstack.io/docs/neo4j-graphql-js-quickstart) augmented schema with the additional power of an OGM for further database operations.
 
 # Installation
 First install [Node.js](https://nodejs.org/en/), then start [Neo4j](https://neo4j.com/) & finally...
@@ -108,6 +108,7 @@ Used with
 4. `updateMany`
 5. `deleteOne`
 6. `deleteMany`
+7. `count`
 
 #### Equality
 ```js
@@ -258,6 +259,20 @@ const users = await User.deleteMany(
 );
 ```
 
+
+### Count 
+1. `count`
+
+```js
+const query = {
+    name: "Dan",
+};
+
+const userCount = await User.count(
+    query
+);
+```
+
 ### Resolvers
 ```js
 const User = neogoose.model(
@@ -363,7 +378,7 @@ const AUTO_SELECTION_SET = `
 `
 ```
 
-### Node Properties
+### Validation
 > Built in support for `@Validation` directive.
 
 ```js
@@ -387,7 +402,7 @@ const User = neogoose.model(
 );
 ```
 
-### Auto Input
+### Auto Validation
 ⚠ If you don't specify `@Validation` an auto generated `input` will be made based on the provided `type`. **Nested `input` types are not supported!**
 
 **Before**
