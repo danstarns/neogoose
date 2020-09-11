@@ -23,11 +23,8 @@ $ npm install neo4j-driver graphql
 
 ## Importing
 ```js
-// Using require
+// Use require
 const neogoose = require("neogoose");
-
-// Using import
-import neogoose from "neogoose";
 ```
 
 # Prior Art
