@@ -1,11 +1,14 @@
 import { Model, Query } from "../types";
+import { generate } from "randomstring";
 
 function createWhereAndParams({
   model,
   query,
+  parent,
 }: {
   model: Model;
   query: Query;
+  parent?: string;
 }): { params: any; where: string } {
   const params = {
     node: {},
@@ -20,15 +23,48 @@ function createWhereAndParams({
     const v = query[k];
     const next = keys[i + 1];
 
-    if (v.$in) {
-      where = where + ` n.${k} IN $node.${k}`;
-      params.node[k] = v.$in;
-    } else if (v.$regex) {
-      where = where + ` n.${k} =~ $node.${k}`;
-      params.node[k] = v.$regex;
+    if (!Array.isArray(v) && Object.keys(v).length && typeof v !== "string") {
+      const r = createWhereAndParams({ model, query: v, parent: k });
+
+      const whereGone = r.where.replace("WHERE", "");
+
+      where = where + ` (${whereGone})`;
+
+      params.node = { ...params.node, ...r.params.node };
     } else {
-      where = where + ` n.${k} = $node.${k}`;
-      params.node[k] = v;
+      const key = parent ? parent : k;
+      const id = generate({
+        charset: "alphabetic",
+      });
+
+      switch (k) {
+        case "$eq":
+          break;
+        case "$gt":
+          break;
+        case "$gte":
+          break;
+        case "$in":
+          where = where + ` n.${key} IN $node.${id}`;
+          params.node[id] = v;
+          break;
+        case "$lt":
+          break;
+        case "$lte":
+          break;
+        case "$ne":
+          break;
+        case "$nin":
+          break;
+        case "$regex":
+          where = where + ` n.${key} =~ $node.${id}`;
+          params.node[id] = v;
+          break;
+
+        default:
+          where = where + ` n.${key} = $node.${id}`;
+          params.node[id] = v;
+      }
     }
 
     if (next) {
