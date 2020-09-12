@@ -96,8 +96,6 @@ function createWhereAndParams({
           where = where + ` )`;
 
           break;
-        case "$not":
-          break;
         case "$nor":
           break;
         case "$or":

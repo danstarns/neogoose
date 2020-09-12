@@ -156,9 +156,8 @@ const users = await User.findMany({
 
 #### Logical Operators
 1. `$and`
-2. `$not`
-3. `$nor` 
-4. `$or` 
+2. `$nor` 
+3. `$or` 
 
 #### Evaluation Operators
 1. `$regex`
