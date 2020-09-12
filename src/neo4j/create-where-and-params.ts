@@ -67,6 +67,8 @@ function createWhereAndParams({
           params.node[id] = v;
           break;
         case "$nin":
+          where = where + ` NOT n.${key} IN $node.${id}`;
+          params.node[id] = v;
           break;
         case "$regex":
           where = where + ` n.${key} =~ $node.${id}`;
