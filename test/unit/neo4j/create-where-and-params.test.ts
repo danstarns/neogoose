@@ -457,5 +457,49 @@ describe("neo4j/createWhereAndParams", () => {
 
       expect(w.params.node).to.deep.equal({ [id]: [id] });
     });
+
+    it("should return correct where clause and params with $and", () => {
+      const id = generate({
+        charset: "alphabetic",
+      });
+
+      const id2 = generate({
+        charset: "alphabetic",
+      });
+
+      const called = [];
+
+      // @ts-ignore
+      const model: Model = {};
+
+      const createWhereAndParams = proxyquire(
+        "../../../src/neo4j/create-where-and-params",
+        {
+          randomstring: {
+            generate: () => {
+              if (called.length === 1) {
+                called.push(1);
+                return id;
+              }
+
+              if (called.length === 2) {
+                called.push(1);
+                return id2;
+              }
+
+              called.push(1);
+            },
+          },
+        }
+      );
+
+      const query = {
+        $and: [{ id }, { id: id2 }],
+      };
+
+      const w = createWhereAndParams({ model, query });
+
+      expect(w.params.node).to.deep.equal({ [id]: id, [id2]: id2 });
+    });
   });
 });

@@ -38,6 +38,7 @@ function createWhereAndParams({
       });
 
       switch (k) {
+        /*  Comparison Operators */
         case "$eq":
           where = where + ` n.${key} = $node.${id}`;
           params.node[id] = v;
@@ -70,6 +71,39 @@ function createWhereAndParams({
           where = where + ` NOT n.${key} IN $node.${id}`;
           params.node[id] = v;
           break;
+
+        /* Logical Operators */
+        case "$and":
+          where = where + ` (`;
+
+          for (let ii = 0; ii < v.length; ii++) {
+            const and = v[ii];
+            const n = v[ii + 1];
+
+            const r = createWhereAndParams({ model, query: and, parent });
+
+            const whereGone = r.where.replace("WHERE", "");
+
+            where = where + ` (${whereGone})`;
+
+            params.node = { ...params.node, ...r.params.node };
+
+            if (n) {
+              where = where + " AND";
+            }
+          }
+
+          where = where + ` )`;
+
+          break;
+        case "$not":
+          break;
+        case "$nor":
+          break;
+        case "$or":
+          break;
+
+        /*  Evaluation Operators */
         case "$regex":
           where = where + ` n.${key} =~ $node.${id}`;
           params.node[id] = v;
