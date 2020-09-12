@@ -384,4 +384,52 @@ describe("findMany", () => {
       session.close();
     }
   });
+
+  it("should findMany with $gte and equality", async () => {
+    const id = generate({
+      charset: "alphabetic",
+    });
+
+    const number = 5;
+
+    const session = driver.session({ defaultAccessMode: "WRITE" });
+
+    const createCypher = `
+        CREATE (:User {number: $number, id: $id}), (:User {number: $number, id: $id}), (:User {number: $number, id: $id})
+    `;
+
+    try {
+      await session.run(createCypher, {
+        number,
+        id,
+      });
+
+      const found = await User.findMany({
+        id,
+        number: {
+          $gte: 5,
+        },
+      });
+
+      expect(found.length).to.equal(3);
+
+      found.forEach((node) => {
+        expect(node.id).to.equal(id);
+      });
+
+      const deleteCypher = `
+        MATCH (n:User)
+        WHERE n.id STARTS WITH $id
+        DELETE n
+      `;
+
+      await session.run(deleteCypher, {
+        id,
+      });
+    } catch (error) {
+      throw error;
+    } finally {
+      session.close();
+    }
+  });
 });
