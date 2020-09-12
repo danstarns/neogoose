@@ -277,5 +277,35 @@ describe("neo4j/createWhereAndParams", () => {
 
       expect(w.params.node).to.deep.equal({ [id]: id });
     });
+
+    it("should return correct where clause and params with $gt", () => {
+      const id = generate({
+        charset: "alphabetic",
+      });
+
+      // @ts-ignore
+      const model: Model = {};
+
+      const createWhereAndParams = proxyquire(
+        "../../../src/neo4j/create-where-and-params",
+        {
+          randomstring: {
+            generate: () => id,
+          },
+        }
+      );
+
+      const query = {
+        id: {
+          $gt: id,
+        },
+      };
+
+      const w = createWhereAndParams({ model, query });
+
+      expect(w.where).to.contain(`WHERE ( n.id > $node.${id})`);
+
+      expect(w.params.node).to.deep.equal({ [id]: id });
+    });
   });
 });
