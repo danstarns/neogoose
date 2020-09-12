@@ -141,8 +141,16 @@ const users = await User.findMany({
     },
 });
 ```
-
 ⚠ Javascript regex not supported use regex stated [here](https://neo4j.com/docs/cypher-manual/current/clauses/where/#query-where-regex)
+
+#### $in
+```js
+const users = await User.findMany({
+    name: {
+        $in: ["Dan", "Daniel"]
+    },
+});
+```
 
 #### Comparison Operators
 1. `$eq`
