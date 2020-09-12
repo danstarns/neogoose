@@ -39,6 +39,8 @@ function createWhereAndParams({
 
       switch (k) {
         case "$eq":
+          where = where + ` n.${key} = $node.${id}`;
+          params.node[id] = v;
           break;
         case "$gt":
           break;

@@ -284,4 +284,56 @@ describe("findMany", () => {
       session.close();
     }
   });
+
+  it("should findMany with $eq", async () => {
+    const id = generate({
+      charset: "alphabetic",
+    });
+
+    const session = driver.session({ defaultAccessMode: "WRITE" });
+
+    const createCypher = `
+        CREATE (:User {id: $id}), (:User {id: $id}), (:User {id: $id})
+    `;
+
+    try {
+      await session.run(createCypher, {
+        id,
+      });
+
+      const found = await User.findMany({
+        id: {
+          $eq: id,
+        },
+      });
+
+      expect(found.length).to.equal(3);
+
+      found.forEach((node) => {
+        expect(node.id).to.include(id);
+      });
+
+      const deleteCypher = `
+        MATCH (n:User)
+        WHERE n.id STARTS WITH $id
+        DELETE n
+      `;
+
+      await session.run(deleteCypher, {
+        id,
+      });
+
+      const reFind = await User.findMany({
+        id: {
+          $eq: id,
+        },
+      });
+
+      expect(reFind.length).to.equal(0);
+    } catch (error) {
+      throw error;
+    } finally {
+      session.close();
+    }
+  });
 });
