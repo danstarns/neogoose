@@ -8,6 +8,8 @@ Node.js [Neo4j](https://neo4j.com/) OGM inspired by [Mongoose](https://github.co
 ## TLDR
 Use [GraphQL schema language](https://graphql.org/learn/schema/#type-language) to define Models. On Model `CRUD` input validated & output resolved through a generated GraphQL schema. Modularize your [neo4js-graphql-js](https://grandstack.io/docs/neo4j-graphql-js-quickstart) augmented schema with the additional power of an OGM for further database operations.
 
+Models are not designed to support querying relationships **use a [session](#creating-a-session) for this**. This library is designed to place a `CRUD` api over nodes. You can also create an [Executable schema](#executable-schema) to execute more complex queries.
+
 ## Installation
 First install [Node.js](https://nodejs.org/en/), then start [Neo4j](https://neo4j.com/) & finally...
 
@@ -60,8 +62,6 @@ const User = neogoose.model(
     }
 );
 ```
-
-⚠ Models are not designed to support querying relationships **use a [session](#creating-a-session) for this**. This library is designed to place a `CRUD` api over nodes. You can also create an [Executable schema](#executable-schema) to execute more complex queries.
 
 ## Creating a session
 ```js
