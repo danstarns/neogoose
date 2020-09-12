@@ -63,6 +63,8 @@ function createWhereAndParams({
           params.node[id] = v;
           break;
         case "$ne":
+          where = where + ` n.${key} <> $node.${id}`;
+          params.node[id] = v;
           break;
         case "$nin":
           break;
