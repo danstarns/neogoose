@@ -23,7 +23,6 @@ $ npm install neo4j-driver graphql
 
 ## Importing
 ```js
-// Use require
 const neogoose = require("neogoose");
 ```
 
@@ -114,16 +113,27 @@ const dan = await User.findOne({
 });
 ```
 
-#### $in
+#### $or 
 ```js
 const users = await User.findMany({
-    name: {
-        $in: ["dan", "daniel"]
-    },
+    $or: [
+        { name: "Dan" },
+        { name: "Daniel" }
+    ],
 });
 ```
 
-#### Regex
+#### $and
+```js
+const users = await User.findMany({
+    $and: [
+        { name: "Dan" },
+        { repo: "neogoose" }
+    ],
+});
+```
+
+#### $regex
 ```js
 const users = await User.findMany({
     name: {
@@ -132,7 +142,26 @@ const users = await User.findMany({
 });
 ```
 
-⚠ Javascript `Regex` not supported use regex stated [here](https://neo4j.com/docs/cypher-manual/current/clauses/where/#query-where-regex)
+⚠ Javascript regex not supported use regex stated [here](https://neo4j.com/docs/cypher-manual/current/clauses/where/#query-where-regex)
+
+#### Comparison Operators
+1. `$eq`
+2. `$gt`
+3. `$gte`
+4. `$in`
+5. `$lt`
+6. `$lte`
+7. `$ne`
+8. `$nin`
+
+#### Logical Operators
+1. `$and`
+2. `$not`
+3. `$nor` 
+4. `$or` 
+
+#### Evaluation Operators
+1. `$regex`
 
 ### Skip/Limit
 Used with
@@ -295,7 +324,7 @@ const User = neogoose.model(
 
 ### Selection Set
 
-Used with;
+Used with
 1. `findOne`
 2. `findMany`
 3. `updateOne`
