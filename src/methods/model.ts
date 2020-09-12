@@ -8,6 +8,7 @@ import {
   getRelationDirective,
   getNeo4jCypherDirective,
   getFieldTypeName,
+  createValidationSchema,
 } from "../graphql";
 import { FieldDefinitionNode, ObjectTypeDefinitionNode } from "graphql";
 
@@ -142,6 +143,10 @@ function model<T = any>(runtime: Runtime): CreateOrGetModel {
     const model = new Model<T>(input);
 
     runtime.models.push(model);
+
+    if (runtime.validationSchema) {
+      runtime.validationSchema = createValidationSchema({ runtime });
+    }
 
     return model;
   };
