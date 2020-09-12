@@ -499,6 +499,58 @@ describe("neo4j/createWhereAndParams", () => {
 
       const w = createWhereAndParams({ model, query });
 
+      expect(w.where).to.contain(
+        `WHERE ( ( n.id = $node.${id}) AND ( n.id = $node.${id2}) )`
+      );
+
+      expect(w.params.node).to.deep.equal({ [id]: id, [id2]: id2 });
+    });
+
+    it("should return correct where clause and params with $or", () => {
+      const id = generate({
+        charset: "alphabetic",
+      });
+
+      const id2 = generate({
+        charset: "alphabetic",
+      });
+
+      const called = [];
+
+      // @ts-ignore
+      const model: Model = {};
+
+      const createWhereAndParams = proxyquire(
+        "../../../src/neo4j/create-where-and-params",
+        {
+          randomstring: {
+            generate: () => {
+              if (called.length === 1) {
+                called.push(1);
+                return id;
+              }
+
+              if (called.length === 2) {
+                called.push(1);
+                return id2;
+              }
+
+              called.push(1);
+            },
+          },
+        }
+      );
+
+      const query = {
+        $or: [{ id }, { id: id2 }],
+      };
+
+      const w = createWhereAndParams({ model, query });
+
+      expect(w.where).to.contain(
+        `WHERE ( ( n.id = $node.${id}) OR ( n.id = $node.${id2}) )`
+      );
+
       expect(w.params.node).to.deep.equal({ [id]: id, [id2]: id2 });
     });
   });

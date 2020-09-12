@@ -671,4 +671,54 @@ describe("findMany", () => {
       session.close();
     }
   });
+
+  it("should findMany with $or", async () => {
+    const id = generate({
+      charset: "alphabetic",
+    });
+
+    const session = driver.session({ defaultAccessMode: "WRITE" });
+
+    const createCypher = `
+        CREATE (:User {id: $id, name: $name1}), (:User {id: $id, name: $name2}), (:User {id: $id, name: $name3})
+    `;
+
+    try {
+      await session.run(createCypher, {
+        id,
+        name1: "Daniel",
+        name2: "Dan",
+        name3: "Danny",
+      });
+
+      const found = await User.findMany({
+        $or: [
+          { id, name: "Daniel" },
+          { id, name: "Dan" },
+          { id, name: "Danny" },
+        ],
+      });
+
+      expect(found.length).to.equal(3);
+
+      found.forEach((node) => {
+        expect(node.id).to.equal(id);
+        expect(node.name).to.be.oneOf(["Daniel", "Dan", "Danny"]);
+      });
+
+      const deleteCypher = `
+        MATCH (n:User)
+        WHERE n.id = $id
+        DELETE n
+      `;
+
+      await session.run(deleteCypher, {
+        id,
+      });
+    } catch (error) {
+      throw error;
+    } finally {
+      session.close();
+    }
+  });
 });

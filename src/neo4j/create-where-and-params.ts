@@ -96,9 +96,27 @@ function createWhereAndParams({
           where = where + ` )`;
 
           break;
-        case "$nor":
-          break;
         case "$or":
+          where = where + ` (`;
+
+          for (let ii = 0; ii < v.length; ii++) {
+            const and = v[ii];
+            const n = v[ii + 1];
+
+            const r = createWhereAndParams({ model, query: and, parent });
+
+            const whereGone = r.where.replace("WHERE", "");
+
+            where = where + ` (${whereGone})`;
+
+            params.node = { ...params.node, ...r.params.node };
+
+            if (n) {
+              where = where + " OR";
+            }
+          }
+
+          where = where + ` )`;
           break;
 
         /*  Evaluation Operators */
